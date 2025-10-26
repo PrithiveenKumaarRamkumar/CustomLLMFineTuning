@@ -1,0 +1,20 @@
+tokenizer_model: microsoft/codebert-base
+similarity_threshold: 0.85
+log_pii_removal: true
+max_file_size_mb: 10
+supported_languages:
+  - python
+  - java
+  - cpp
+  - javascript
+
+stages:
+  encoding_fix: true
+  malformed_cleaning: true
+  pii_removal: true
+  deduplication: true
+  tokenization: true
+  whitespace_cleanup: true
+
+parallel_processing: false
+max_workers: 4

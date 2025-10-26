@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "input_files": 3,
+    "output_files": 2,
+    "removed_files": 1,
+    "bytes_saved": 248
+  },
+  "duplicate_groups": {
+    "exact": {},
+    "normalized": {
+      "b2986d47223007b950d69d07e86b60adb0ce95fa57a57bfc74ec04aeacd9359f": [
+        "data\\processed\\code\\python\\repo1_file1.py",
+        "data\\processed\\code\\python\\repo2_file1.py"
+      ]
+    },
+    "near": [
+      {
+        "file1": "data\\processed\\code\\python\\repo1_file1.py",
+        "file2": "data\\processed\\code\\python\\repo2_file1.py",
+        "similarity": 0.902127659574468
+      }
+    ]
+  }
+}
