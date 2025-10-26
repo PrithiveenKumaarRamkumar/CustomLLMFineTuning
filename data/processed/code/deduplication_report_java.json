@@ -1,0 +1,13 @@
+{
+  "summary": {
+    "input_files": 2,
+    "output_files": 2,
+    "removed_files": 0,
+    "bytes_saved": 0
+  },
+  "duplicate_groups": {
+    "exact": {},
+    "normalized": {},
+    "near": []
+  }
+}
