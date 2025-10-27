@@ -1,0 +1,53 @@
+groups:
+  - name: pipeline_alerts
+    interval: 30s
+    rules:
+      # High error rate alert
+      - alert: HighPipelineErrorRate
+        expr: rate(pipeline_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate in pipeline"
+          description: "Pipeline {{ $labels.stage }} has error rate of {{ $value }} errors/sec"
+      
+      # Slow processing alert
+      - alert: SlowPipelineProcessing
+        expr: pipeline_processing_seconds > 300
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pipeline processing is slow"
+          description: "Stage {{ $labels.stage }} took {{ $value }}s to process"
+      
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: system_cpu_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}%"
+      
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: system_memory_usage_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}%"
+      
+      # Pipeline failure
+      - alert: PipelineFailed
+        expr: pipeline_status == -1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pipeline has failed"
+          description: "Pipeline {{ $labels.pipeline_name }} has failed"
