@@ -1,0 +1,92 @@
+schema: '2.0'
+stages:
+  organize:
+    cmd: python scripts/dataset_filter.py --input data/raw --output 
+      data/staged/raw_organized --max-size-mb 10
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 6d10d3b2c5964061c0956c6c9b26d4f8.dir
+      size: 1130
+      nfiles: 5
+    - path: scripts/dataset_filter.py
+      hash: md5
+      md5: dc1e5ea7a41cb87a4fc6fbc716cb7f06
+      size: 6739
+    outs:
+    - path: data/staged/raw_organized
+      hash: md5
+      md5: 8ca80bbaf36b0732b62db0f1a026f080.dir
+      size: 2970
+      nfiles: 11
+  preprocessing:
+    cmd: python scripts/preprocessing.py --input data/staged/raw_organized 
+      --output data/processed/code --config configs/preprocessing_config.yaml
+    deps:
+    - path: configs/preprocessing_config.yaml
+      hash: md5
+      md5: 86de12faa49cf79e05458e8c59dfd9de
+      size: 383
+    - path: data/staged/raw_organized
+      hash: md5
+      md5: 8ca80bbaf36b0732b62db0f1a026f080.dir
+      size: 2970
+      nfiles: 11
+    - path: scripts/deduplication.py
+      hash: md5
+      md5: 43fcd44b77071b39719cc4f68f84b9b5
+      size: 20603
+    - path: scripts/pii_removal.py
+      hash: md5
+      md5: 8591eb0d11a76982d8b45c1f30c10c7b
+      size: 14141
+    - path: scripts/preprocessing.py
+      hash: md5
+      md5: 8fef02601e6a8178ef59230d0187ca74
+      size: 27915
+    outs:
+    - path: data/processed/code
+      hash: md5
+      md5: 3ccb76b0758fd028e740048e1119b537.dir
+      size: 1254
+      nfiles: 5
+    - path: data/processed/preprocessing_results.json
+      hash: md5
+      md5: 9b2b47201e78284c472655f2b834c36d
+      size: 25558
+  validation:
+    cmd: python scripts/schema_validation.py --input data/processed/code 
+      --output reports/schema_validation_report.json
+    deps:
+    - path: data/processed/code
+      hash: md5
+      md5: 3ccb76b0758fd028e740048e1119b537.dir
+      size: 1254
+      nfiles: 5
+    - path: scripts/schema_validation.py
+      hash: md5
+      md5: a77ee881848a3497315db7f7078dfa70
+      size: 4028
+    outs:
+    - path: reports/schema_validation_report.json
+      hash: md5
+      md5: d722e5bdabbfc395284ef42a40a57088
+      size: 389
+  statistics:
+    cmd: python scripts/statistics_generation.py --input data/processed/code 
+      --output reports/data_statistics.json
+    deps:
+    - path: data/processed/code
+      hash: md5
+      md5: 3ccb76b0758fd028e740048e1119b537.dir
+      size: 1254
+      nfiles: 5
+    - path: scripts/statistics_generation.py
+      hash: md5
+      md5: 09eaea3fbeb880d0732aad7c25945aac
+      size: 2555
+    outs:
+    - path: reports/data_statistics.json
+      hash: md5
+      md5: bd24b40be6a9c39e8d96d1260d89eaaf
+      size: 402

@@ -1,143 +1,160 @@
-# import os
-# import yaml
-# import logging
-# from datasets import load_dataset
-# from pathlib import Path
+"""
+Configurable metadata acquisition for The Stack v2 (Hugging Face) with filtering.
 
-# # Set up logging
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format='%(asctime)s - %(levelname)s - %(message)s',
-#     handlers=[
-#         logging.FileHandler('data_acquisition.log'),
-#         logging.StreamHandler()
-#     ]
-# )
-# logger = logging.getLogger(__name__)
+Generates a small filtered metadata JSON for a selected language, which can be
+consumed by the unified downloader (scripts/batch_swh_download.py).
 
-# # Load configuration
-# config_path = 'configs/data_config.yaml'
-# if not os.path.exists(config_path):
-#     print(f"Config file not found at {config_path}")
-#     exit(1)
+Examples:
+  python scripts/data_acquisition.py --language javascript --limit 50
+  python scripts/data_acquisition.py --language cpp --min-stars 5 --max-size 204800
+  python scripts/data_acquisition.py --language python --output data/filtered_python.json
 
-# with open(config_path, 'r') as f:
-#     config = yaml.safe_load(f)
+Defaults come from configs/data_config.yaml when available.
+"""
 
-# # Create directories
-# Path(config['storage']['raw_data_path']).mkdir(parents=True, exist_ok=True)
-# Path(config['storage']['checkpoint_path']).mkdir(parents=True, exist_ok=True)
+from __future__ import annotations
 
-# print("Starting data acquisition...")
-
-# try:
-#     # Load dataset in streaming mode
-#     print("Loading dataset from Hugging Face...")
-#     dataset = load_dataset(
-#         config['dataset']['name'],
-#         streaming=True,
-#         split='train'
-#     )
-#     print("Dataset loaded, starting loop...")
-
-#     # Save first 10 examples as a test
-#     count = 0
-#     for idx, example in enumerate(dataset):
-#         print(f"Processing example {idx}")
-#         print(example)  # Print the example to see its structure
-
-#         if count >= 10:
-#             break
-
-#         # Save the code to a file
-#         output_file = Path(config['storage']['raw_data_path']) / f"sample_{idx}.py"
-#         with open(output_file, 'w', encoding='utf-8') as f:
-#             f.write(example.get('content', ''))
-
-#         print(f"Saved file: sample_{idx}.py")
-#         logger.info(f"Saved file {idx+1}/10")
-#         count += 1
-
-#     print("Sample download complete!")
-
-# except Exception as e:
-#     print(f"Error: {str(e)}")
-#     logger.error(f"Error: {str(e)}")
-# ---------------------------------------------------------------------------
-# import json
-# from datasets import load_dataset
-
-# def json_serial(obj):
-#     """JSON serializer for objects not serializable by default"""
-#     try:
-#         return obj.isoformat()
-#     except AttributeError:
-#         return str(obj)
-
-# dataset = load_dataset("bigcode/the-stack-v2", "C++", split="train", streaming=True)
-
-# MIN_STARS = 10
-# MIN_SIZE = 100
-# MAX_SIZE = 1048576
-# LICENSES = {"mit", "apache-2.0", "bsd-2-clause", "bsd-3-clause"}
-
-# filtered = []
-# print("Starting to filter examples...")
-# for example in dataset:
-#     stars = example.get("star_events_count", 0)
-#     size = example.get("length_bytes", 0)
-#     licenses = [lic.lower() for lic in (example.get("detected_licenses") or [])]
-#     license_match = any(lic in LICENSES for lic in licenses)
-#     if (
-#         license_match and
-#         stars >= MIN_STARS and
-#         MIN_SIZE <= size <= MAX_SIZE
-#     ):
-#         filtered.append(dict(example))
-#     if len(filtered) >= 100:
-#         break
-
-# with open("data/filtered_metadata_c++.json", "w", encoding="utf-8") as f:
-#     json.dump(filtered, f, indent=2, default=json_serial)
-# print(f"Saved {len(filtered)} filtered entries to data/filtered_metadata_c++.json")
-
-# ---------------------------------------------------------------
-
+import argparse
 import json
+from pathlib import Path
+from typing import Dict, Iterable, List, Set
+
 from datasets import load_dataset
 
+try:
+    import yaml
+except Exception:  # pragma: no cover - optional
+    yaml = None
+
+
+LANG_MAP = {
+    "python": "Python",
+    "java": "Java",
+    "cpp": "C++",
+    "c++": "C++",
+    "javascript": "JavaScript",
+    "js": "JavaScript",
+}
+
+
 def json_serial(obj):
-    """JSON serializer for objects not serializable by default"""
     try:
         return obj.isoformat()
     except AttributeError:
         return str(obj)
 
-dataset = load_dataset("bigcode/the-stack-v2", "JavaScript", split="train", streaming=True)
 
-MIN_STARS = 10
-MIN_SIZE = 100
-MAX_SIZE = 1048576
-LICENSES = {"mit", "apache-2.0", "bsd-2-clause", "bsd-3-clause"}
+def load_config(config_path: Path) -> Dict:
+    """Load YAML config with safe defaults if missing."""
+    defaults = {
+        "dataset": {"name": "bigcode/the-stack-v2"},
+        "filters": {
+            "stars": {"min": 10},
+            "file_size": {"min_bytes": 100, "max_bytes": 1048576},
+            "licenses": ["mit", "apache-2.0", "bsd-2-clause", "bsd-3-clause"],
+        },
+        "metadata_paths": {},
+    }
+    if not yaml or not config_path.exists():
+        return defaults
+    try:
+        with config_path.open("r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+        # shallow merge
+        for k, v in defaults.items():
+            cfg.setdefault(k, v)
+        return cfg
+    except Exception:
+        return defaults
 
-filtered = []
-print("Starting to filter examples...")
-for example in dataset:
-    stars = example.get("star_events_count", 0)
-    size = example.get("length_bytes", 0)
-    licenses = [lic.lower() for lic in (example.get("detected_licenses") or [])]
-    license_match = any(lic in LICENSES for lic in licenses)
-    if (
-        license_match and
-        stars >= MIN_STARS and
-        MIN_SIZE <= size <= MAX_SIZE
-    ):
-        filtered.append(dict(example))
-    if len(filtered) >= 100:
-        break
 
-with open("data/filtered_metadata_javascript.json", "w", encoding="utf-8") as f:
-    json.dump(filtered, f, indent=2, default=json_serial)
-print(f"Saved {len(filtered)} filtered entries to data/filtered_metadata_javascript.json")
+def resolve_output_path(lang_norm: str, cfg: Dict, explicit: Path | None) -> Path:
+    if explicit:
+        p = Path(explicit)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return p
+    # config mapping or default
+    meta_cfg = cfg.get("metadata_paths") or {}
+    default_path = Path(f"data/filtered_metadata_{lang_norm}.json")
+    mapped = meta_cfg.get(lang_norm)
+    out = Path(mapped) if mapped else default_path
+    out.parent.mkdir(parents=True, exist_ok=True)
+    return out
 
-# ---------------------------------------------------------------
+
+def passes_filters(example: Dict, min_stars: int, min_size: int, max_size: int, licenses: Set[str]) -> bool:
+    stars = example.get("star_events_count", 0) or 0
+    size = example.get("length_bytes", 0) or 0
+    ex_licenses = [str(lic).lower() for lic in (example.get("detected_licenses") or [])]
+    license_match = any(lic in licenses for lic in ex_licenses)
+    return license_match and stars >= min_stars and (min_size <= size <= max_size)
+
+
+def acquire(language: str, limit: int, cfg: Dict, output: Path,
+            min_stars: int, min_size: int, max_size: int, licenses: Set[str]) -> Dict:
+    subset = LANG_MAP.get(language.lower())
+    if not subset:
+        raise ValueError(f"Unsupported language: {language}")
+
+    ds_name = (cfg.get("dataset") or {}).get("name", "bigcode/the-stack-v2")
+    dataset = load_dataset(ds_name, subset, split="train", streaming=True)
+
+    filtered: List[Dict] = []
+    for example in dataset:
+        if passes_filters(example, min_stars, min_size, max_size, licenses):
+            filtered.append(dict(example))
+        if len(filtered) >= limit:
+            break
+
+    output.write_text(json.dumps(filtered, indent=2, default=json_serial), encoding="utf-8")
+    return {"language": language, "written": len(filtered), "output": str(output)}
+
+
+def build_arg_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(description="Generate filtered metadata JSON from The Stack v2")
+    p.add_argument("--language", required=True, help="Language: python|java|cpp|javascript")
+    p.add_argument("--limit", type=int, default=100, help="Max number of matched entries to write")
+    p.add_argument("--min-stars", type=int, help="Minimum repo stars (overrides config)")
+    p.add_argument("--min-size", type=int, help="Minimum file size in bytes (overrides config)")
+    p.add_argument("--max-size", type=int, help="Maximum file size in bytes (overrides config)")
+    p.add_argument("--licenses", type=str, help="Comma-separated license allowlist (overrides config)")
+    p.add_argument("--output", type=Path, help="Output JSON path (overrides config)")
+    p.add_argument("--config", type=Path, default=Path("configs/data_config.yaml"))
+    return p
+
+
+def main():
+    args = build_arg_parser().parse_args()
+    cfg = load_config(args.config)
+
+    # Filters effective values
+    filt = cfg.get("filters") or {}
+    min_stars = args.min_stars if args.min_stars is not None else (filt.get("stars", {}).get("min", 10))
+    fs = filt.get("file_size", {})
+    min_size = args.min_size if args.min_size is not None else fs.get("min_bytes", 100)
+    max_size = args.max_size if args.max_size is not None else fs.get("max_bytes", 1048576)
+    lic_cfg = filt.get("licenses") or ["mit", "apache-2.0", "bsd-2-clause", "bsd-3-clause"]
+    licenses = set([s.strip().lower() for s in (args.licenses.split(",") if args.licenses else lic_cfg)])
+
+    lang_norm = args.language.lower()
+    output = resolve_output_path(lang_norm, cfg, args.output)
+
+    try:
+        summary = acquire(
+            language=lang_norm,
+            limit=args.limit,
+            cfg=cfg,
+            output=output,
+            min_stars=min_stars,
+            min_size=min_size,
+            max_size=max_size,
+            licenses=licenses,
+        )
+        print(f"Wrote {summary['written']} entries to {summary['output']} ({summary['language']})")
+    except Exception as e:
+        print(f"[ERROR] Acquisition failed: {e}")
+        raise
+
+
+if __name__ == "__main__":
+    main()

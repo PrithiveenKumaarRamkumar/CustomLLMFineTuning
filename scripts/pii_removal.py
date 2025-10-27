@@ -79,6 +79,11 @@ class PIIRemover:
             # Generic high-entropy strings that look like secrets
             re.compile(r'(?i)(password|passwd|pwd|secret)\s*[=:]\s*["\']?([A-Za-z0-9!@#$%^&*()_+\-=\[\]{}|;:,.<>?]{8,})["\']?'),
         ]
+
+        # Standalone tokens (e.g., GitHub PATs appearing in comments or text)
+        self.standalone_token_patterns = [
+            re.compile(r'(ghp_[A-Za-z0-9_]{20,})'),
+        ]
         
         # URL patterns (to remove sensitive URLs)
         self.url_patterns = [
@@ -199,6 +204,14 @@ class PIIRemover:
                     cleaned_text = cleaned_text.replace(full_match, replacement)
                     removal_stats['api_keys'] += 1
                     removed_items.append(f"API Key: {key_name}")
+
+        # Remove standalone tokens (not tied to a key assignment)
+        for pattern in self.standalone_token_patterns:
+            matches = pattern.findall(cleaned_text)
+            for token in matches:
+                cleaned_text = cleaned_text.replace(token, self._generate_replacement('token', token))
+                removal_stats['secrets'] += 1
+                removed_items.append("Token: ghp_…")
         
         # Remove URLs (selectively - preserve documentation URLs)
         for pattern in self.url_patterns:
