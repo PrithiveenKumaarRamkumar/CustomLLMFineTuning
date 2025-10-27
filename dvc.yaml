@@ -1,0 +1,36 @@
+stages:
+  organize:
+    cmd: python scripts/dataset_filter.py --input data/raw --output data/staged/raw_organized --max-size-mb 10
+    deps:
+      - scripts/dataset_filter.py
+      - data/raw
+    outs:
+      - data/staged/raw_organized
+
+  preprocessing:
+    cmd: python scripts/preprocessing.py --input data/staged/raw_organized --output data/processed/code --config configs/preprocessing_config.yaml
+    deps:
+      - scripts/preprocessing.py
+      - scripts/pii_removal.py
+      - scripts/deduplication.py
+      - configs/preprocessing_config.yaml
+      - data/staged/raw_organized
+    outs:
+      - data/processed/code
+      - data/processed/preprocessing_results.json
+
+  validation:
+    cmd: python scripts/schema_validation.py --input data/processed/code --output reports/schema_validation_report.json
+    deps:
+      - scripts/schema_validation.py
+      - data/processed/code
+    outs:
+      - reports/schema_validation_report.json
+
+  statistics:
+    cmd: python scripts/statistics_generation.py --input data/processed/code --output reports/data_statistics.json
+    deps:
+      - scripts/statistics_generation.py
+      - data/processed/code
+    outs:
+      - reports/data_statistics.json

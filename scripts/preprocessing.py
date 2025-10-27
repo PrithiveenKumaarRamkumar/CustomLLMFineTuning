@@ -91,7 +91,8 @@ class PreprocessingPipeline:
             },
             'parallel_processing': True,
             'max_workers': min(8, multiprocessing.cpu_count()),
-            'chunk_size': 100
+            'chunk_size': 100,
+            'metrics_output': 'monitoring/metrics'
         }
         
         if self.config_path.exists():
@@ -112,6 +113,27 @@ class PreprocessingPipeline:
             return default_config
     
     
+    def _emit_metrics(self, run_success: bool = True):
+        """Emit Prometheus-style metrics to configured directory."""
+        try:
+            metrics_dir = Path(self.config.get('metrics_output', 'monitoring/metrics'))
+            metrics_dir.mkdir(parents=True, exist_ok=True)
+            prom_file = metrics_dir / 'preprocessing.prom'
+            lines = [
+                f"preprocessing_files_processed_total {self.stats.get('total_files_processed', 0)}",
+                f"preprocessing_files_output_total {self.stats.get('total_files_output', 0)}",
+                f"preprocessing_pii_items_removed_total {self.stats.get('pii_items_removed', 0)}",
+                f"preprocessing_duplicates_removed_total {self.stats.get('duplicates_removed', 0)}",
+                f"preprocessing_bytes_processed_total {self.stats.get('bytes_processed', 0)}",
+                f"preprocessing_bytes_saved_total {self.stats.get('bytes_saved', 0)}",
+                f"preprocessing_processing_seconds {self.stats.get('processing_time', 0)}",
+                f"preprocessing_last_run_success {1 if run_success else 0}",
+            ]
+            prom_file.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+        except Exception:
+            # metrics emission should never break the pipeline
+            pass
+
     def _init_tokenizer(self):
         """Initialize the CodeBERT tokenizer"""
         if not TRANSFORMERS_AVAILABLE:
