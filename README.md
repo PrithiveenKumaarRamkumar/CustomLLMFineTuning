@@ -707,7 +707,7 @@ jobs:
 
 #### Monitoring Architecture
 
-![Monitoring Architecture](assets/montoringArchitecture.png)
+![Monitoring Architecture](assets/monitoringArchitecture.png)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
