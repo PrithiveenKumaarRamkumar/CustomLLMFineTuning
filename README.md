@@ -578,8 +578,16 @@ JavaScript: 9% of dataset ⚠ Underrepresented (monitoring)
 
 #### Test Execution Results
 ```bash
-# Run all tests
+# Run all tests with coverage
 pytest tests/ -v --cov=scripts --cov-report=html
+
+# Run specific test categories
+pytest tests/unit/ -v
+pytest tests/integration/ -v
+pytest tests/anomaly/ -v
+
+# Generate test report
+python -m pytest tests/ --html=reports/report.html
 
 ==================== test session starts ====================
 collected 101 items
@@ -698,6 +706,9 @@ jobs:
 - **Documentation**: Comprehensive README, API docs, and user guides
 
 #### Monitoring Architecture
+
+![Monitoring Architecture](assets/monitoringArchitecture.png)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ Airflow Tasks (data_pipeline_dag)                          │
