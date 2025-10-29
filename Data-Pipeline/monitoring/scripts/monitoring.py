@@ -6,7 +6,7 @@ Tracks: processing time, data volume, error rates, resource utilization
 import time
 import psutil
 import logging
-from prometheus_client import Counter, Histogram, Gauge, start_http_server
+from prometheus_client import Counter, Histogram, Gauge, start_http_server, push_to_gateway, CollectorRegistry
 from datetime import datetime
 from functools import wraps
 
@@ -61,8 +61,9 @@ PIPELINE_STATUS = Gauge(
 class PipelineMonitor:
     """Main monitoring class for the data acquisition pipeline"""
     
-    def __init__(self, port=8000):
+    def __init__(self, port=8000, pushgateway_url='localhost:9091'):
         self.port = port
+        self.pushgateway_url = pushgateway_url
         self.start_time = datetime.now()
         
     def start_metrics_server(self):
@@ -95,9 +96,20 @@ class PipelineMonitor:
         return decorator
     
     def record_data_volume(self, stage_name, bytes_processed):
-        """Record volume of data processed"""
+        """Record volume of data processed and push to Pushgateway"""
         DATA_VOLUME_PROCESSED.labels(stage=stage_name).inc(bytes_processed)
         logger.info(f"Stage '{stage_name}': Processed {bytes_processed / (1024**2):.2f} MB")
+        
+        # Push to Pushgateway for persistence (uses default registry)
+        try:
+            from prometheus_client import REGISTRY
+            push_to_gateway(
+                self.pushgateway_url,
+                job=f'pipeline_{stage_name}',
+                registry=REGISTRY
+            )
+        except Exception as e:
+            logger.warning(f"Failed to push metrics to Pushgateway: {e}")
     
     def record_error(self, stage_name, error_type):
         """Record pipeline errors"""

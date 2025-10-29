@@ -1,0 +1,15 @@
+# Ignore all raw data by default
+*
+
+# Keep this .gitignore
+!.gitignore
+
+# Keep sample fixture files (used by tests/docs)
+!example1.py
+!example2.py
+!example3.py
+!example4.py
+!example5.py
+
+# Keep metadata files (filtered metadata JSONs)
+!metadata/

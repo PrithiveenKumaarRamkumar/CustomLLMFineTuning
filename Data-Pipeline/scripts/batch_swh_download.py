@@ -55,6 +55,36 @@ def _clean_filename(repo_name: str, path: str) -> str:
     return f"{repo}_{file_path}"
 
 
+def _safe_filename(repo_name: str, path: str, extension: str, max_len: int = 180) -> str:
+    """Build a safe filename that avoids Windows path length issues and duplicate extensions.
+
+    - Deduplicates extension if it's already present at the end of path
+    - Truncates long basenames and appends a short hash to preserve uniqueness
+    """
+    import hashlib as _hashlib
+
+    base = _clean_filename(repo_name, path)
+    # Remove an extra extension if already present
+    ext = extension.lstrip('.')
+    if base.lower().endswith(f".{ext.lower()}"):
+        candidate = f"{base}"
+    else:
+        candidate = f"{base}.{ext}"
+
+    if len(candidate) <= max_len:
+        return candidate
+
+    # Truncate and add hash suffix for uniqueness
+    digest = _hashlib.sha1(candidate.encode('utf-8')).hexdigest()[:10]
+    # Keep as much of the head as fits
+    keep = max_len - (len(digest) + 3)  # for __ and no extra dot
+    head = candidate[:keep].rstrip('. ')
+    # Ensure we still end with the desired extension
+    if head.lower().endswith(f".{ext.lower()}"):
+        head = head[: -(len(ext) + 1)]  # strip ext, will re-add below
+    return f"{head}__{digest}.{ext}"
+
+
 def _calculate_file_hash(filepath: Path, algo: str = "sha256") -> str:
     hasher = hashlib.sha256() if algo.lower() == "sha256" else hashlib.md5()
     with open(filepath, "rb") as f:
@@ -74,16 +104,34 @@ def _verify_existing_file(filepath: Path) -> bool:
     return stored == current
 
 
-def _save_checksum(filepath: Path, checksum: str) -> None:
-    checksum_file = filepath.with_suffix(filepath.suffix + ".sha256")
-    checksum_file.write_text(checksum, encoding="utf-8")
+def _save_checksum(filepath: Path, checksum: str, logger=None) -> None:
+    """Attempt to save a sidecar checksum; fall back to a manifest file if path is too long.
+
+    On Windows, very long paths for the sidecar (original + '.sha256') can exceed limits.
+    If writing the sidecar fails, append to a directory-level manifest file instead.
+    """
+    try:
+        checksum_file = filepath.with_suffix(filepath.suffix + ".sha256")
+        checksum_file.write_text(checksum, encoding="utf-8")
+        return
+    except OSError as e:
+        if logger:
+            logger.warning(f"Failed to write checksum sidecar for {filepath.name}: {e}. Falling back to manifest.")
+        # Fallback: write to a manifest file in the same directory
+        manifest = filepath.parent / "_checksums.sha256"
+        try:
+            with open(manifest, "a", encoding="utf-8") as mf:
+                mf.write(f"{checksum}  {filepath.name}\n")
+        except Exception as e2:
+            if logger:
+                logger.error(f"Also failed to write checksum manifest: {e2}")
 
 
 def _load_config(config_path: Path) -> Dict:
     # Provide safe defaults if YAML or file missing
     default = {
         "languages": ["Python", "Java", "C++", "JavaScript"],
-        "output_paths": {"base_dir": "data/code_files"},
+        "output_paths": {"base_dir": "data/raw"},
         "metadata_paths": {},
     }
     if not yaml or not config_path.exists():
@@ -103,10 +151,10 @@ def _metadata_path_for(lang_norm: str, cfg: Dict) -> Path:
     # Prefer explicit metadata_paths from config if present
     meta_cfg = cfg.get("metadata_paths") or {}
     mapping = {
-        "python": meta_cfg.get("python", "data/filtered_metadata_python.json"),
-        "java": meta_cfg.get("java", "data/filtered_metadata_java.json"),
-        "cpp": meta_cfg.get("cpp", "data/filtered_metadata_cpp.json"),
-        "javascript": meta_cfg.get("javascript", "data/filtered_metadata_javascript.json"),
+        "python": meta_cfg.get("python", "data/raw/filtered_metadata_python.json"),
+        "java": meta_cfg.get("java", "data/raw/filtered_metadata_java.json"),
+        "cpp": meta_cfg.get("cpp", "data/raw/filtered_metadata_cpp.json"),
+        "javascript": meta_cfg.get("javascript", "data/raw/filtered_metadata_javascript.json"),
     }
     # Legacy fallback used by older scripts
     legacy = f"data/raw/metadata/filtered_metadata_{lang_norm}.json"
@@ -168,7 +216,7 @@ def download_for_language(lang: str, cfg: Dict, logger) -> Dict:
         path = entry.get("path", f"{blob_id}.txt")
         extension = entry.get("extension", "txt")
 
-        filename = f"{_clean_filename(repo_name, path)}.{extension}"
+        filename = _safe_filename(repo_name, path, extension)
         out_file = out_dir / filename
 
         if _verify_existing_file(out_file):
@@ -182,7 +230,7 @@ def download_for_language(lang: str, cfg: Dict, logger) -> Dict:
                     content = gz.read().decode(src_encoding, errors="replace")
             out_file.write_text(content, encoding="utf-8")
             checksum = _calculate_file_hash(out_file, "sha256")
-            _save_checksum(out_file, checksum)
+            _save_checksum(out_file, checksum, logger)
             downloaded += 1
         except Exception as e:
             logger.error(f"[{idx}/{len(metadata)}] Error downloading {filename}: {e}")

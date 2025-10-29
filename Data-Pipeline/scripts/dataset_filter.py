@@ -23,10 +23,19 @@ import argparse
 import hashlib
 import json
 import shutil
+import sys
 from datetime import datetime
 from typing import Dict, Set, Optional
 
 import yaml
+
+# Import monitoring
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent / "monitoring" / "scripts"))
+    from monitoring import monitor
+    MONITORING_ENABLED = True
+except Exception:
+    MONITORING_ENABLED = False
 
 EXT_TO_LANG = {
     ".py": "python",
@@ -48,6 +57,48 @@ def sha256_of_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
                 break
             h.update(chunk)
     return h.hexdigest()
+
+
+def _safe_filename(base_name: str, extension: str, max_len: int = 180) -> str:
+    """Build a safe filename that avoids Windows path length issues.
+    
+    - Truncates long basenames and appends a short hash to preserve uniqueness
+    - Ensures consistent extension handling
+    """
+    # Remove extension if already present
+    ext = extension.lstrip('.')
+    if base_name.lower().endswith(f".{ext.lower()}"):
+        candidate = base_name
+    else:
+        candidate = f"{base_name}.{ext}"
+    
+    if len(candidate) <= max_len:
+        return candidate
+    
+    # Truncate and add hash suffix for uniqueness
+    digest = hashlib.sha1(candidate.encode('utf-8')).hexdigest()[:10]
+    keep = max_len - (len(digest) + 3)
+    head = candidate[:keep].rstrip('. ')
+    if head.lower().endswith(f".{ext.lower()}"):
+        head = head[:-(len(ext) + 1)]
+    return f"{head}__{digest}.{ext}"
+
+
+def _save_checksum(filepath: Path, checksum: str) -> None:
+    """Attempt to save a sidecar checksum; fall back to a manifest file if path is too long."""
+    try:
+        checksum_file = filepath.with_suffix(filepath.suffix + ".sha256")
+        checksum_file.write_text(checksum + "\n", encoding="utf-8")
+        return
+    except OSError as e:
+        print(f"Warning: Failed to write checksum sidecar for {filepath.name}: {e}. Falling back to manifest.")
+        # Fallback: write to a manifest file in the same directory
+        manifest = filepath.parent / "_checksums.sha256"
+        try:
+            with open(manifest, "a", encoding="utf-8") as mf:
+                mf.write(f"{checksum}  {filepath.name}\n")
+        except Exception as e2:
+            print(f"Error: Also failed to write checksum manifest: {e2}")
 
 
 def _load_config(config_path: Optional[Path]) -> Dict:
@@ -86,7 +137,17 @@ def _emit_metrics(metrics_dir: Path, moved: int, skipped: int):
     prom.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def organize_and_filter(input_dir: Path, output_dir: Path, max_size_mb: int, config_path: Optional[Path] = None) -> dict:
+# Apply monitoring decorator if available
+if MONITORING_ENABLED:
+    @monitor.track_stage_time("organize")
+    def organize_and_filter(input_dir: Path, output_dir: Path, max_size_mb: int, config_path: Optional[Path] = None) -> dict:
+        return _organize_and_filter_impl(input_dir, output_dir, max_size_mb, config_path)
+else:
+    def organize_and_filter(input_dir: Path, output_dir: Path, max_size_mb: int, config_path: Optional[Path] = None) -> dict:
+        return _organize_and_filter_impl(input_dir, output_dir, max_size_mb, config_path)
+
+
+def _organize_and_filter_impl(input_dir: Path, output_dir: Path, max_size_mb: int, config_path: Optional[Path] = None) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
     cfg = _load_config(config_path)
     # Determine allowed languages set
@@ -138,10 +199,13 @@ def organize_and_filter(input_dir: Path, output_dir: Path, max_size_mb: int, con
             manifest["skipped"].append({"path": str(src), "reason": "too_large"})
             continue
 
-        # Prepare destination path (preserve filename only)
+        # Prepare destination path with safe filename
         lang_dir = output_dir / lang
         lang_dir.mkdir(parents=True, exist_ok=True)
-        dst = lang_dir / src.name
+        
+        # Use safe filename to avoid Windows path length issues
+        safe_name = _safe_filename(src.stem, src.suffix, max_len=180)
+        dst = lang_dir / safe_name
 
         # Handle name collisions by appending a numeric suffix
         if dst.exists():
@@ -149,7 +213,8 @@ def organize_and_filter(input_dir: Path, output_dir: Path, max_size_mb: int, con
             suffix = dst.suffix
             i = 1
             while True:
-                alt = lang_dir / f"{stem}_{i}{suffix}"
+                alt_name = _safe_filename(f"{src.stem}_{i}", src.suffix, max_len=180)
+                alt = lang_dir / alt_name
                 if not alt.exists():
                     dst = alt
                     break
@@ -158,7 +223,7 @@ def organize_and_filter(input_dir: Path, output_dir: Path, max_size_mb: int, con
         # Copy and checksum
         shutil.copy2(src, dst)
         checksum = sha256_of_file(dst)
-        (dst.with_suffix(dst.suffix + ".sha256")).write_text(checksum + "\n", encoding="utf-8")
+        _save_checksum(dst, checksum)
 
         manifest["moved"].append({
             "src": str(src),
@@ -191,8 +256,25 @@ def main():
     parser.add_argument("--config", type=Path, default=Path("configs/data_config.yaml"))
     args = parser.parse_args()
 
-    report = organize_and_filter(args.input, args.output, args.max_size_mb, config_path=args.config)
-    print(json.dumps({k: report[k] for k in ["total_moved", "total_skipped", "output_dir"]}, indent=2))
+    # Set pipeline status to running
+    if MONITORING_ENABLED:
+        monitor.set_pipeline_status("dataset_filter", 1)
+    
+    try:
+        report = organize_and_filter(args.input, args.output, args.max_size_mb, config_path=args.config)
+        
+        # Record metrics
+        if MONITORING_ENABLED:
+            total_bytes = sum(item.get("bytes", 0) for item in report.get("moved", []))
+            monitor.record_data_volume("dataset_filter", total_bytes)
+            monitor.set_pipeline_status("dataset_filter", 0)
+        
+        print(json.dumps({k: report[k] for k in ["total_moved", "total_skipped", "output_dir"]}, indent=2))
+    except Exception as e:
+        if MONITORING_ENABLED:
+            monitor.record_error("dataset_filter", type(e).__name__)
+            monitor.set_pipeline_status("dataset_filter", -1)
+        raise
 
 
 if __name__ == "__main__":
