@@ -37,8 +37,7 @@ plotly>=5.16.0
 # Bias Analysis
 scipy>=1.11.2              # For statistical tests
 numpy>=1.24.0
-tfma>=0.43.0               # TensorFlow Model Analysis for bias detection
-slice-finder>=0.1.0        # For data slicing analysis
+scikit-learn>=1.3.0        # For model analysis and bias detection
 
 # Testing Dependencies
 pytest>=7.4.0

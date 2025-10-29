@@ -1,0 +1,30 @@
+[
+  {
+    "blob_id": "py_1234",
+    "repo_name": "test/repo1",
+    "path": "src/test1.py",
+    "src_encoding": "utf-8",
+    "content": "def hello():\n    print('hello world')",
+    "size": 1024,
+    "language": "python",
+    "stars": 100,
+    "complexity": 5,
+    "date_added": "2025-10-28",
+    "license": "MIT",
+    "num_lines": 20
+  },
+  {
+    "blob_id": "py_5678",
+    "repo_name": "test/repo2", 
+    "path": "lib/test2.py",
+    "src_encoding": "utf-8",
+    "content": "class Test:\n    def method(self):\n        pass",
+    "size": 2048,
+    "language": "python",
+    "stars": 50,
+    "complexity": 8,
+    "date_added": "2025-10-28",
+    "license": "Apache-2.0",
+    "num_lines": 35
+  }
+]

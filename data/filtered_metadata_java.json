@@ -1,0 +1,11 @@
+[
+  {
+    "id": "java1",
+    "repo_name": "test/repo1",
+    "path": "src/Test.java",
+    "content": "public class Test {\n    public static void main(String[] args) {\n        System.out.println(\"Hello\");\n    }\n}",
+    "size": 1024,
+    "language": "java",
+    "stars": 100
+  }
+]

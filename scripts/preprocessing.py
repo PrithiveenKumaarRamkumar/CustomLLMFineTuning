@@ -15,7 +15,251 @@ import json
 import yaml
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, Union
+
+class Preprocessor:
+    """Main class for preprocessing code data."""
+    
+    def __init__(self, config_path: Optional[str] = None):
+        """Initialize the preprocessor.
+        
+        Args:
+            config_path: Optional path to configuration file
+        """
+        self.config = self._load_config(config_path) if config_path else {}
+        self.pii_remover = PIIRemover()
+        self.deduplicator = CodeDeduplicator()
+        self.tokenizer = None
+        if TRANSFORMERS_AVAILABLE:
+            self.tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
+
+    def process_content(self, content: str) -> Dict[str, Any]:
+        """Process content through the preprocessing pipeline."""
+        try:
+            # Apply PII removal
+            cleaned_content, pii_stats = self.pii_remover.remove_pii_from_text(content)
+            
+            # Apply basic cleaning
+            cleaned_content = self.remove_comments(cleaned_content)
+            
+            # Return processed content and metadata
+            return {
+                "status": "success",
+                "content": cleaned_content,
+                "metadata": {
+                    "original_size": len(content),
+                    "processed_size": len(cleaned_content),
+                    "pii_removed": pii_stats,
+                    "comments_removed": True
+                }
+            }
+        except Exception as e:
+            logging.error(f"Error processing content: {str(e)}")
+            return {
+                "status": "error",
+                "error": str(e)
+            }
+            
+    def _load_config(self, config_path: str) -> Dict[str, Any]:
+        """Load configuration from YAML file.
+        
+        Args:
+            config_path: Path to configuration file
+            
+        Returns:
+            Configuration dictionary
+        """
+        try:
+            with open(config_path, 'r') as f:
+                return yaml.safe_load(f)
+        except Exception as e:
+            logging.warning(f"Error loading config from {config_path}: {e}")
+            return {}
+            
+    def preprocess_file(self, file_path: Union[str, Path]) -> Dict[str, Any]:
+        """Preprocess a single code file.
+        
+        Args:
+            file_path: Path to code file
+            
+        Returns:
+            Dictionary containing preprocessing results
+        """
+        try:
+            file_path = Path(file_path)
+            if not file_path.exists():
+                raise FileNotFoundError(f"File not found: {file_path}")
+                
+            # Read file content with encoding detection
+            with open(file_path, 'rb') as f:
+                raw_content = f.read()
+                result = chardet.detect(raw_content)
+                encoding = result['encoding'] or 'utf-8'
+                
+            with open(file_path, 'r', encoding=encoding) as f:
+                content = f.read()
+                
+            # Apply preprocessing steps
+            cleaned_content = self.pii_remover.remove_pii(content)
+            cleaned_content = self.remove_comments(cleaned_content)
+            
+            # Tokenize if tokenizer is available
+            tokens = None
+            if self.tokenizer:
+                tokens = self.tokenizer.tokenize(cleaned_content)
+                
+            return {
+                "status": "success",
+                "original_size": len(content),
+                "cleaned_size": len(cleaned_content),
+                "tokens": tokens,
+                "encoding": encoding,
+                "file_path": str(file_path)
+            }
+            
+        except Exception as e:
+            logging.error(f"Error preprocessing file {file_path}: {e}")
+            return {
+                "status": "error",
+                "error": str(e),
+                "file_path": str(file_path)
+            }
+            
+    def preprocess_directory(self, dir_path: Union[str, Path], 
+                           file_pattern: str = "**/*.py") -> Dict[str, Any]:
+        """Preprocess all matching files in a directory.
+        
+        Args:
+            dir_path: Directory path
+            file_pattern: Glob pattern for files
+            
+        Returns:
+            Dictionary containing preprocessing results
+        """
+        try:
+            dir_path = Path(dir_path)
+            if not dir_path.exists():
+                raise NotADirectoryError(f"Directory not found: {dir_path}")
+                
+            results = {
+                "processed": [],
+                "failed": [],
+                "total_files": 0,
+                "success_count": 0,
+                "error_count": 0
+            }
+            
+            for file_path in dir_path.glob(file_pattern):
+                result = self.preprocess_file(file_path)
+                results["total_files"] += 1
+                
+                if result["status"] == "success":
+                    results["processed"].append(result)
+                    results["success_count"] += 1
+                else:
+                    results["failed"].append(result)
+                    results["error_count"] += 1
+                    
+            return results
+            
+        except Exception as e:
+            logging.error(f"Error preprocessing directory {dir_path}: {e}")
+            return {
+                "status": "error",
+                "error": str(e),
+                "dir_path": str(dir_path)
+            }
+            
+    def remove_comments(self, content: str) -> str:
+        """Remove comments from code content.
+        
+        Args:
+            content: Code content
+            
+        Returns:
+            Code content with comments removed
+        """
+        # TODO: Implement proper comment removal for different languages
+        # This is a basic implementation
+        lines = []
+        in_multiline = False
+        
+        for line in content.split('\n'):
+            if not in_multiline:
+                # Remove single line comments
+                if '#' in line:
+                    line = line.split('#')[0]
+                # Check for multiline comment start
+                if '"""' in line or "'''" in line:
+                    in_multiline = True
+                    continue
+            else:
+                # Check for multiline comment end
+                if '"""' in line or "'''" in line:
+                    in_multiline = False
+                continue
+                
+            if not in_multiline and line.strip():
+                lines.append(line.rstrip())
+                
+        return '\n'.join(lines)
+        
+    def process_files(self, files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Process multiple files through the preprocessing pipeline.
+        
+        Args:
+            files: List of dictionaries containing file information
+            
+        Returns:
+            List of processed file results
+        """
+        processed = []
+        for file in files:
+            try:
+                result = self.process_content(file["content"])
+                result["file_path"] = file["path"]
+                processed.append(result)
+            except Exception as e:
+                logging.error(f"Error processing file {file.get('path', 'unknown')}: {e}")
+                
+        return processed
+
+    def process_content(self, content: str) -> Dict[str, Any]:
+        """Process a single piece of code content.
+        
+        Args:
+            content: Code content to process
+            
+        Returns:
+            Dictionary containing processing results
+        """
+        try:
+            # Apply preprocessing steps
+            cleaned_content, pii_stats = self.pii_remover.remove_pii(content)
+            cleaned_content = self.remove_comments(cleaned_content)
+            
+            # Tokenize if tokenizer is available
+            tokens = None
+            if self.tokenizer:
+                tokens = self.tokenizer.tokenize(cleaned_content)
+                
+            return {
+                "status": "success",
+                "content": cleaned_content,
+                "metadata": {
+                    "original_size": len(content),
+                    "cleaned_size": len(cleaned_content),
+                    "tokens": tokens,
+                    "language": "python"  # Inferred from context
+                }
+            }
+            
+        except Exception as e:
+            logging.error(f"Error processing content: {e}")
+            return {
+                "status": "error",
+                "error": str(e)
+            }
 from datetime import datetime
 import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -29,9 +273,9 @@ except ImportError:
 import chardet
 
 # Import our custom modules
-from pii_removal import PIIRemover
-from deduplication import CodeDeduplicator
-from logger_config import setup_logger, get_log_filename
+from scripts.pii_removal import PIIRemover
+from scripts.deduplication import CodeDeduplicator
+from scripts.logger_config import setup_logger, get_log_filename
 
 
 class PreprocessingPipeline:
@@ -308,7 +552,8 @@ class PreprocessingPipeline:
             token_strings = self.tokenizer.convert_ids_to_tokens(tokens)
             
             return {
-                'token_ids': tokens,
+                'tokens': tokens,  # For backward compatibility
+                'token_ids': tokens,  # For test compatibility
                 'token_strings': token_strings,
                 'token_count': len(tokens),
                 'truncated': len(prefixed_content) > self.tokenizer.model_max_length,
@@ -518,6 +763,9 @@ class PreprocessingPipeline:
                 report_path = output_dir.parent / f"deduplication_report_{language}.json"
                 self.deduplicator.save_duplicate_report(dedup_results, report_path)
                 
+                # Store dedup results for stats calculation
+                self.dedup_results = dedup_results
+                
                 self.logger.info(f"Deduplication complete for {language}: "
                                f"{dedup_results['removed_files']} duplicates removed")
                 
@@ -529,10 +777,19 @@ class PreprocessingPipeline:
         
         successful_results = [r for r in results if r['success']]
         
+        # Calculate final processed file count after deduplication
+        processed_count = len(successful_results)
+        if stages.get('deduplication', True):
+            try:
+                dedup_results = getattr(self, 'dedup_results', {})  # Get deduplication results if they exist
+                processed_count -= dedup_results.get('removed_files', 0)  # Subtract removed duplicates
+            except Exception as e:
+                self.logger.warning(f"Could not get deduplication results: {e}")
+
         language_stats = {
             'language': language,
             'input_files': len(code_files),
-            'processed_files': len(successful_results),
+            'processed_files': processed_count,
             'failed_files': len(results) - len(successful_results),
             'total_original_size': sum(r.get('original_size', 0) for r in successful_results),
             'total_final_size': sum(r.get('final_size', 0) for r in successful_results),

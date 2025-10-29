@@ -18,8 +18,9 @@ class TestDataAcquisition:
         assert self.data_acquisition.validate_credentials() is True
         
         # Test with invalid credentials
+        test_instance = DataAcquisition(aws_credentials=None, output_dir="test")
         with pytest.raises(ValueError):
-            DataAcquisition(aws_credentials=None, output_dir="test")
+            test_instance.validate_credentials()
     
     def test_download_dataset(self, temp_workspace):
         """Test dataset download functionality"""

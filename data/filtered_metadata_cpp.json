@@ -1,0 +1,16 @@
+[
+    {
+        "blob_id": "cpp_1234",
+        "repo_name": "test/repo1",
+        "path": "src/test1.cpp",
+        "language": "cpp",
+        "src_encoding": "utf-8",
+        "content": "#include <iostream>\nint main() {\n    std::cout << \"Hello World\" << std::endl;\n    return 0;\n}",
+        "size": 1024,
+        "stars": 100,
+        "complexity": 5,
+        "date_added": "2025-10-28",
+        "license": "MIT",
+        "num_lines": 20
+    }
+]
