@@ -8,9 +8,9 @@ A production-ready data pipeline for acquiring, preprocessing, and managing code
 - [Code Structure](#code-structure)
 - [Environment Setup](#environment-setup)
 - [Running the Pipeline](#running-the-pipeline)
-  - [Option 1: DVC Pipeline](#option-1-run-full-pipeline-with-dvc-recommended)
-  - [Option 2: Individual Scripts](#option-2-run-individual-scripts)
-  - [Option 3: Airflow Orchestration](#option-3-run-with-airflow-orchestration)
+  - [Option 1: Airflow (Recommended)](#option-1-run-with-airflow-recommended-for-production)
+  - [Option 2: DVC Directly](#option-2-run-dvc-pipeline-directly)
+  - [Option 3: Individual Scripts](#option-3-run-individual-scripts)
 - [Data Versioning with DVC](#data-versioning-with-dvc)
 - [Monitoring](#monitoring)
 - [Testing](#testing)
@@ -263,7 +263,74 @@ dvc pull
 
 ## 🚀 Running the Pipeline
 
-### Option 1: Run Full Pipeline with DVC (Recommended)
+You can run the pipeline in three ways:
+
+1. **Airflow DAG (Recommended for Production)**: Orchestrates DVC stages with scheduling, monitoring, and retries
+2. **DVC Directly**: Manual execution of versioned pipeline stages
+3. **Individual Scripts**: Run specific steps independently for development/debugging
+
+> **Note**: The Airflow DAG automatically executes DVC stages (`dvc repro`), so running the DAG is sufficient for complete pipeline execution. You don't need to run DVC separately when using Airflow.
+
+### Option 1: Run with Airflow (Recommended for Production)
+
+Apache Airflow orchestrates the entire pipeline with DVC integration, providing scheduling, retries, and monitoring.
+
+#### Airflow Setup
+
+1. **Build Airflow Docker Image**:
+```bash
+cd dags
+docker build -f Dockerfile.airflow -t airflow-custom:latest .
+```
+
+2. **Start Airflow Services**:
+```bash
+# Start Airflow (webserver, scheduler, postgres)
+docker-compose -f docker-compose.airflow.yml up -d
+
+# Check status
+docker-compose -f docker-compose.airflow.yml ps
+```
+
+3. **Access Airflow UI**:
+- URL: http://localhost:8080
+- Username: `admin`
+- Password: `admin`
+
+4. **Enable and Trigger DAG**:
+- Navigate to DAGs page
+- Find `data_pipeline_dag`
+- Toggle ON to enable
+- Click play button to trigger manually
+
+#### Airflow DAG Structure
+
+The DAG (`dags/data_pipeline_dag.py`) orchestrates all DVC stages:
+
+```
+organize → preprocessing → validation → statistics
+```
+
+**Features**:
+- **DVC Integration**: Each task runs `dvc repro <stage>` (DVC handles dependency tracking)
+- **Metrics Export**: Success/failure metrics pushed to Pushgateway
+- **Retry Logic**: Automatic retries on failure (configurable)
+- **Scheduling**: Set `schedule_interval` for automated runs (default: manual trigger)
+- **Environment Variables**:
+  - `AIRFLOW_REPO_DIR`: Path to repository root (default: `.`)
+  - `PUSHGATEWAY_URL`: Metrics endpoint (default: `pushgateway:9091`)
+
+#### Stop Airflow
+
+```bash
+cd dags
+docker-compose -f docker-compose.airflow.yml down
+
+# Remove volumes (data will be lost)
+docker-compose -f docker-compose.airflow.yml down -v
+```
+
+### Option 2: Run DVC Pipeline Directly
 
 DVC automatically tracks dependencies and only re-runs changed stages:
 
@@ -282,7 +349,11 @@ dvc repro preprocessing
 3. `validation` - Schema validation
 4. `statistics` - Generate dataset statistics
 
-### Option 2: Run Individual Scripts
+> **When to use DVC directly**: Development, testing specific stages, or when Airflow is not available.
+
+### Option 3: Run Individual Scripts
+
+For development, debugging, or running specific steps independently:
 
 #### Step 1: Data Acquisition
 ```bash
@@ -324,65 +395,6 @@ python scripts/schema_validation.py \
 python scripts/statistics_generation.py \
   --input data/processed/code \
   --output reports/data_statistics.json
-```
-
-### Option 3: Run with Airflow (Orchestration)
-
-For production workflows, use Apache Airflow to orchestrate the pipeline with scheduling, retries, and monitoring.
-
-#### Airflow Setup
-
-1. **Build Airflow Docker Image**:
-```bash
-cd dags
-docker build -f Dockerfile.airflow -t airflow-custom:latest .
-```
-
-2. **Start Airflow Services**:
-```bash
-# Start Airflow (webserver, scheduler, postgres)
-docker-compose -f docker-compose.airflow.yml up -d
-
-# Check status
-docker-compose -f docker-compose.airflow.yml ps
-```
-
-3. **Access Airflow UI**:
-- URL: http://localhost:8080
-- Username: `admin`
-- Password: `admin`
-
-4. **Enable and Trigger DAG**:
-- Navigate to DAGs page
-- Find `data_pipeline_dag`
-- Toggle ON to enable
-- Click play button to trigger manually
-
-#### Airflow DAG Structure
-
-The DAG (`dags/data_pipeline_dag.py`) orchestrates all DVC stages:
-
-```
-organize → preprocessing → validation → statistics
-```
-
-**Features**:
-- **DVC Integration**: Each task runs `dvc repro <stage>`
-- **Metrics Export**: Success/failure metrics pushed to Pushgateway
-- **Retry Logic**: Automatic retries on failure (configurable)
-- **Scheduling**: Set `schedule_interval` for automated runs (default: manual trigger)
-- **Environment Variables**:
-  - `AIRFLOW_REPO_DIR`: Path to repository root (default: `.`)
-  - `PUSHGATEWAY_URL`: Metrics endpoint (default: `pushgateway:9091`)
-
-#### Stop Airflow
-
-```bash
-cd dags
-docker-compose -f docker-compose.airflow.yml down
-
-# Remove volumes (data will be lost)
-docker-compose -f docker-compose.airflow.yml down -v
 ```
 
 ### Pipeline Outputs
