@@ -16,10 +16,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Dict, Iterable, List, Set
 
 from datasets import load_dataset
+from huggingface_hub import login
 
 try:
     import yaml
@@ -75,7 +77,7 @@ def resolve_output_path(lang_norm: str, cfg: Dict, explicit: Path | None) -> Pat
         return p
     # config mapping or default
     meta_cfg = cfg.get("metadata_paths") or {}
-    default_path = Path(f"data/filtered_metadata_{lang_norm}.json")
+    default_path = Path(f"data/raw/filtered_metadata_{lang_norm}.json")
     mapped = meta_cfg.get(lang_norm)
     out = Path(mapped) if mapped else default_path
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -91,13 +93,34 @@ def passes_filters(example: Dict, min_stars: int, min_size: int, max_size: int, 
 
 
 def acquire(language: str, limit: int, cfg: Dict, output: Path,
-            min_stars: int, min_size: int, max_size: int, licenses: Set[str]) -> Dict:
+            min_stars: int, min_size: int, max_size: int, licenses: Set[str], token: str | None = None) -> Dict:
     subset = LANG_MAP.get(language.lower())
     if not subset:
         raise ValueError(f"Unsupported language: {language}")
 
+    # Authenticate with Hugging Face if token is available
+    hf_token = token or os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+    if hf_token:
+        try:
+            login(token=hf_token, add_to_git_credential=False)
+        except Exception as e:
+            print(f"[WARNING] Failed to authenticate with Hugging Face: {e}")
+    
     ds_name = (cfg.get("dataset") or {}).get("name", "bigcode/the-stack-v2")
-    dataset = load_dataset(ds_name, subset, split="train", streaming=True)
+    
+    try:
+        dataset = load_dataset(ds_name, subset, split="train", streaming=True, token=hf_token)
+    except Exception as e:
+        if "gated dataset" in str(e).lower() or "authenticated" in str(e).lower():
+            raise ValueError(
+                f"Dataset '{ds_name}' requires authentication. "
+                "Please provide a Hugging Face token via:\n"
+                "  1. --token argument\n"
+                "  2. HF_TOKEN environment variable\n"
+                "  3. HUGGING_FACE_HUB_TOKEN environment variable\n"
+                "Get your token at: https://huggingface.co/settings/tokens"
+            ) from e
+        raise
 
     filtered: List[Dict] = []
     for example in dataset:
@@ -120,6 +143,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--licenses", type=str, help="Comma-separated license allowlist (overrides config)")
     p.add_argument("--output", type=Path, help="Output JSON path (overrides config)")
     p.add_argument("--config", type=Path, default=Path("configs/data_config.yaml"))
+    p.add_argument("--token", type=str, help="Hugging Face token (or set HF_TOKEN env var)")
     return p
 
 
@@ -149,6 +173,7 @@ def main():
             min_size=min_size,
             max_size=max_size,
             licenses=licenses,
+            token=args.token,
         )
         print(f"Wrote {summary['written']} entries to {summary['output']} ({summary['language']})")
     except Exception as e:
