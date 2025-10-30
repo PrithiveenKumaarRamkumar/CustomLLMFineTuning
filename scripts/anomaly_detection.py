@@ -173,22 +173,34 @@ class AnomalyDetector:
         """Detect files with anomalous sizes."""
         anomalies = []
         for file in files:
+            # Handle case where file might be a tuple from PII removal
+            if isinstance(file, tuple):
+                content = file[0]
+                file_info = {'file_path': 'unknown', 'content': content}
+            else:
+                file_info = file
+
             # Get size from metadata or content length
             size = 0
-            if 'metadata' in file and 'size' in file['metadata']:
-                size = file['metadata']['size']
-            elif 'content' in file:
-                size = len(file['content'])
+            if isinstance(file_info, dict):
+                if 'metadata' in file_info and 'size' in file_info['metadata']:
+                    size = file_info['metadata']['size']
+                elif 'content' in file_info:
+                    size = len(file_info['content'])
+                elif isinstance(file_info.get('content'), str):
+                    size = len(file_info['content'])
+            else:
+                size = len(str(file_info))
                 
             if size > self.thresholds['file_size_max']:
                 anomalies.append({
-                    'file': file['file_path'],
+                    'file': file_info.get('file_path', 'unknown'),
                     'size': size,
                     'type': 'oversized'
                 })
             elif size < 100:  # Minimum size threshold
                 anomalies.append({
-                    'file': file['file_path'],
+                    'file': file_info.get('file_path', 'unknown'),
                     'size': size,
                     'type': 'undersized'
                 })
@@ -212,10 +224,17 @@ class AnomalyDetector:
         """Detect potential PII in files."""
         detections = []
         for file in files:
-            if not isinstance(file.get('content'), str):
+            # Handle tuple case from PII removal
+            if isinstance(file, tuple):
+                content = file[0]
+                file_info = {'path': 'unknown', 'content': content}
+            else:
+                file_info = file
+                content = file_info.get('content', '')
+            
+            if not isinstance(content, str):
                 continue
-                
-            content = file['content']
+            
             pii_found = {}
             for pii_type, pattern in self.pii_patterns.items():
                 try:
@@ -236,14 +255,24 @@ class AnomalyDetector:
         """Detect files with encoding issues."""
         issues = []
         for file in files:
-            content = file.get('content', b'')
+            # Handle case where file might be a tuple from PII removal
+            if isinstance(file, tuple):
+                content = file[0]  # Get content from tuple
+                file_info = {'path': 'unknown', 'content': content}
+            else:
+                file_info = file
+                content = file_info.get('content', '')
+
+            # Ensure content is in bytes
             if isinstance(content, str):
                 content = content.encode('utf-8')
+            elif not isinstance(content, (bytes, bytearray)):
+                content = str(content).encode('utf-8')
             
             detected = chardet.detect(content)
             if detected['encoding'] != 'utf-8' or detected['confidence'] < 0.9:
                 issues.append({
-                    'file': file['path'],
+                    'file': file_info.get('path', 'unknown'),
                     'detected_encoding': detected['encoding'],
                     'confidence': detected['confidence']
                 })
@@ -281,6 +310,75 @@ class AnomalyDetector:
             "file_size": self._detect_size_anomalies([file_data]),
             "complexity": self._analyze_complexity([file_data]),
             "pii_detected": self._detect_pii([file_data])
+        }
+
+    def _analyze_complexity_distribution(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Analyze the distribution of code complexity across files."""
+        complexities = []
+        for file in files:
+            # Handle tuple case from PII removal
+            if isinstance(file, tuple):
+                content = file[0]
+            else:
+                content = file.get('content', '')
+            
+            try:
+                # Simple complexity metric: number of lines
+                if isinstance(content, str):
+                    complexity = len(content.splitlines())
+                else:
+                    complexity = 0
+                complexities.append(complexity)
+            except Exception:
+                continue
+        
+        if not complexities:
+            return {
+                "mean": 0,
+                "std_dev": 0,
+                "percentiles": [0, 0, 0],  # 25th, 50th, 75th
+                "total_files": 0
+            }
+        
+        return {
+            "mean": float(np.mean(complexities)),
+            "std_dev": float(np.std(complexities)),
+            "percentiles": [
+                float(np.percentile(complexities, 25)),
+                float(np.percentile(complexities, 50)),
+                float(np.percentile(complexities, 75))
+            ],
+            "total_files": len(complexities)
+        }
+
+    def _analyze_license_distribution(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Analyze the distribution of licenses across files."""
+        license_counts = {}
+        total_files = 0
+        
+        for file in files:
+            # Handle tuple case from PII removal
+            if isinstance(file, tuple):
+                metadata = {}
+            else:
+                metadata = file.get('metadata', {})
+            
+            license_type = metadata.get('license', 'unknown')
+            license_counts[license_type] = license_counts.get(license_type, 0) + 1
+            total_files += 1
+        
+        if total_files == 0:
+            return {"distribution": {}, "total_files": 0}
+        
+        # Calculate percentages
+        distribution = {
+            license_type: count / total_files
+            for license_type, count in license_counts.items()
+        }
+        
+        return {
+            "distribution": distribution,
+            "total_files": total_files
         }
 
     def analyze_bias(self, files: List[Dict[str, Any]]) -> Dict[str, Any]:

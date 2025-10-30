@@ -105,8 +105,8 @@ class TestBiasAnalysis:
         distribution = analyze_complexity_distribution(complexities)
         
         # Check if any language is unfairly penalized
-        assert distribution["mean"] <= test_config["thresholds"]["complexity_threshold"]
-        assert distribution["std_dev"] < test_config["thresholds"]["complexity_threshold"] / 2
+        assert distribution["mean"] <= test_config["thresholds"]["complexity_max"]
+        assert distribution["std_dev"] < test_config["thresholds"]["complexity_max"] / 2
 
     def test_statistical_significance(self):
         """Test statistical significance of bias metrics."""
