@@ -8,10 +8,10 @@ import json
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from scripts.bias_analysis import (
-    analyze_language_distribution,
-    analyze_complexity_distribution,
-    analyze_license_distribution,
-    calculate_fairness_metrics
+    LanguageRepresentationAnalyzer,
+    PopularityBiasAnalyzer,
+    CodeQualityBiasAnalyzer,
+    ComprehensiveBiasAnalyzer
 )
 
 class TestBiasAnalysis:

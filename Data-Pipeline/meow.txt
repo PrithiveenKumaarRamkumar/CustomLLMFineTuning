@@ -1,0 +1,1907 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.11, pytest-8.4.2, pluggy-1.6.0 -- /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/.venv/bin/python3
+cachedir: .pytest_cache
+benchmark: 5.2.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline
+configfile: pytest.ini
+plugins: anyio-4.11.0, Faker-37.12.0, hydra-core-1.3.2, benchmark-5.2.0, cov-7.0.0, mock-3.15.1, timeout-2.4.0, xdist-3.8.0
+collecting ... collected 119 items
+
+tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_language_distribution FAILED [  0%]
+tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_complexity_bias FAILED [  1%]
+tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_license_fairness FAILED [  2%]
+tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_fairness_metrics FAILED [  3%]
+tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_complexity_thresholds FAILED [  4%]
+tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_statistical_significance PASSED [  5%]
+tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_bias_mitigation_impact PASSED [  5%]
+tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_file_size_anomalies ERROR [  6%]
+tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_complexity_anomalies ERROR [  7%]
+tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_duplicate_detection ERROR [  8%]
+tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_statistical_anomalies ERROR [  9%]
+tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_pii_pattern_detection ERROR [ 10%]
+tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_language_distribution_bias ERROR [ 10%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_language_representation_bias_detection PASSED [ 11%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_balanced_language_distribution PASSED [ 12%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_repository_popularity_bias_detection PASSED [ 13%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_license_diversity_bias PASSED [ 14%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_code_complexity_bias_detection FAILED [ 15%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_pii_removal_fairness_analysis PASSED [ 15%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_geographic_bias_in_pii_patterns PASSED [ 16%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_temporal_bias_detection PASSED [ 17%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_file_size_bias_detection PASSED [ 18%]
+tests/bias/test_bias_detection.py::TestBiasDetection::test_comprehensive_bias_report_generation FAILED [ 19%]
+tests/bias/test_bias_detection.py::TestFairnessValidation::test_demographic_parity_validation FAILED [ 20%]
+tests/bias/test_bias_detection.py::TestFairnessValidation::test_equalized_odds_validation PASSED [ 21%]
+tests/bias/test_bias_detection.py::TestFairnessValidation::test_individual_fairness_validation PASSED [ 21%]
+tests/bias/test_bias_detection.py::TestFairnessValidation::test_counterfactual_fairness_validation PASSED [ 22%]
+tests/bias/test_bias_detection.py::TestFairnessValidation::test_calibration_fairness_validation PASSED [ 23%]
+tests/integration/test_pipeline_integration.py::TestPipelineIntegration::test_full_pipeline_execution FAILED [ 24%]
+tests/integration/test_pipeline_integration.py::TestPipelineIntegration::test_aws_integration_with_real_credentials SKIPPED [ 25%]
+tests/integration/test_pipeline_integration.py::TestPipelineIntegration::test_aws_integration_with_mock_credentials PASSED [ 26%]
+tests/integration/test_pipeline_integration.py::TestPipelineIntegration::test_data_consistency FAILED [ 26%]
+tests/integration/test_pipeline_integration.py::TestPipelineIntegration::test_performance_metrics PASSED [ 27%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_small_dataset_performance FAILED [ 28%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_medium_dataset_performance PASSED [ 29%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_large_dataset_performance PASSED [ 30%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_memory_usage_scaling PASSED [ 31%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_concurrent_processing_performance PASSED [ 31%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_processing_time_distribution PASSED [ 32%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_memory_leak_detection PASSED [ 33%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_cpu_utilization_efficiency FAILED [ 34%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_disk_io_performance PASSED [ 35%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_error_handling_performance_impact PASSED [ 36%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_throughput_consistency PASSED [ 36%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_resource_cleanup_efficiency PASSED [ 37%]
+tests/performance/test_performance.py::TestPipelinePerformance::test_scalability_limits PASSED [ 38%]
+tests/test_Acquisition.py::TestDataAcquisition::test_requirements_file_exists PASSED [ 39%]
+tests/test_Acquisition.py::TestDataAcquisition::test_config_file_exists PASSED [ 40%]
+tests/test_Acquisition.py::TestDataAcquisition::test_config_file_loads PASSED [ 41%]
+tests/test_Acquisition.py::TestDataAcquisition::test_languages_configured FAILED [ 42%]
+tests/test_Acquisition.py::TestDataAcquisition::test_filter_configuration_valid PASSED [ 42%]
+tests/test_Acquisition.py::TestDataAcquisition::test_data_acquisition_initialization FAILED [ 43%]
+tests/test_Acquisition.py::TestDataAcquisition::test_huggingface_filter_initialization FAILED [ 44%]
+tests/test_Acquisition.py::TestDataAcquisition::test_metadata_filtering_stars FAILED [ 45%]
+tests/test_Acquisition.py::TestDataAcquisition::test_metadata_filtering_language FAILED [ 46%]
+tests/test_Acquisition.py::TestDataAcquisition::test_sha256_validation FAILED [ 47%]
+tests/test_Acquisition.py::TestDataAcquisition::test_sha256_validation_failure FAILED [ 47%]
+tests/test_Acquisition.py::TestDataAcquisition::test_aws_s3_integration FAILED [ 48%]
+tests/test_Acquisition.py::TestDataAcquisition::test_file_size_filtering FAILED [ 49%]
+tests/test_Acquisition.py::TestDataAcquisition::test_language_classification FAILED [ 50%]
+tests/test_Acquisition.py::TestDataAcquisition::test_duplicate_url_handling FAILED [ 51%]
+tests/test_Acquisition.py::TestDataAcquisition::test_download_error_handling FAILED [ 52%]
+tests/test_Acquisition.py::TestDataAcquisition::test_output_directories_exist FAILED [ 52%]
+tests/test_Acquisition.py::TestDataAcquisition::test_metadata_files_exist FAILED [ 53%]
+tests/test_Acquisition.py::TestDataAcquisition::test_metadata_files_valid_json PASSED [ 54%]
+tests/test_Acquisition.py::TestDataAcquisition::test_metadata_entries_have_required_fields PASSED [ 55%]
+tests/test_Acquisition.py::TestDataAcquisition::test_downloaded_files_exist PASSED [ 56%]
+tests/test_Acquisition.py::TestDataAcquisition::test_downloaded_files_not_empty PASSED [ 57%]
+tests/test_Acquisition.py::TestDataAcquisition::test_filter_criteria_in_config PASSED [ 57%]
+tests/test_Acquisition.py::TestRequirements::test_required_packages_in_requirements FAILED [ 58%]
+tests/test_dataset_filter.py::test_organize_and_filter_basic PASSED      [ 59%]
+tests/test_preprocessing.py::TestPIIRemoval::test_api_key_removal FAILED [ 60%]
+tests/test_preprocessing.py::TestPIIRemoval::test_credit_card_removal FAILED [ 61%]
+tests/test_preprocessing.py::TestPIIRemoval::test_email_removal_basic PASSED [ 62%]
+tests/test_preprocessing.py::TestPIIRemoval::test_email_removal_multiple_formats FAILED [ 63%]
+tests/test_preprocessing.py::TestPIIRemoval::test_github_token_removal FAILED [ 63%]
+tests/test_preprocessing.py::TestPIIRemoval::test_ip_address_removal FAILED [ 64%]
+tests/test_preprocessing.py::TestPIIRemoval::test_phone_number_removal FAILED [ 65%]
+tests/test_preprocessing.py::TestPIIRemoval::test_pii_false_positive_handling PASSED [ 66%]
+tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_concurrent_safety FAILED [ 67%]
+tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_encoding_handling FAILED [ 68%]
+tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_file_operations FAILED [ 68%]
+tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_large_files FAILED [ 69%]
+tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_preserves_code_structure PASSED [ 70%]
+tests/test_preprocessing.py::TestPIIRemoval::test_pii_statistics_accuracy FAILED [ 71%]
+tests/test_preprocessing.py::TestPIIRemoval::test_ssn_removal FAILED     [ 72%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_batch_deduplication FAILED [ 73%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_comment_handling FAILED [ 73%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_deduplication_statistics FAILED [ 74%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_different_content_not_duplicates FAILED [ 75%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_empty_file_handling FAILED [ 76%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_encoding_robustness FAILED [ 77%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_exact_duplicate_detection FAILED [ 78%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_incremental_deduplication FAILED [ 78%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_large_file_deduplication FAILED [ 79%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_minhash_consistency FAILED [ 80%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_near_duplicate_detection FAILED [ 81%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_similarity_matrix_generation FAILED [ 82%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_similarity_threshold_configuration FAILED [ 83%]
+tests/test_preprocessing.py::TestCodeDeduplication::test_whitespace_normalization FAILED [ 84%]
+tests/test_preprocessing.py::TestPreprocessingPipeline::test_config_loading PASSED [ 84%]
+tests/test_preprocessing.py::TestPreprocessingPipeline::test_encoding_detection PASSED [ 85%]
+tests/test_preprocessing.py::TestPreprocessingPipeline::test_language_directory_processing PASSED [ 86%]
+tests/test_preprocessing.py::TestPreprocessingPipeline::test_malformed_code_cleaning PASSED [ 87%]
+tests/test_preprocessing.py::TestPreprocessingPipeline::test_process_single_file FAILED [ 88%]
+tests/test_preprocessing.py::TestPreprocessingPipeline::test_tokenization_with_mock PASSED [ 89%]
+tests/test_preprocessing.py::TestPreprocessingPipeline::test_whitespace_cleanup PASSED [ 89%]
+tests/test_preprocessing.py::TestDeduplication::test_code_normalization PASSED [ 90%]
+tests/test_preprocessing.py::TestDeduplication::test_exact_hash_calculation PASSED [ 91%]
+tests/test_preprocessing.py::TestDeduplication::test_find_exact_duplicates PASSED [ 92%]
+tests/test_preprocessing.py::TestDeduplication::test_process_directory PASSED [ 93%]
+tests/test_preprocessing.py::TestDeduplication::test_similarity_calculation PASSED [ 94%]
+tests/test_preprocessing.py::TestIntegration::test_full_pipeline_integration FAILED [ 94%]
+tests/unit/test_acquisition.py::TestDataAcquisition::test_aws_credentials_validation ERROR [ 95%]
+tests/unit/test_acquisition.py::TestDataAcquisition::test_download_dataset ERROR [ 96%]
+tests/unit/test_acquisition.py::TestDataAcquisition::test_metadata_validation ERROR [ 97%]
+tests/unit/test_acquisition.py::TestDataAcquisition::test_file_size_validation ERROR [ 98%]
+tests/unit/test_acquisition.py::TestDataAcquisition::test_sha256_verification ERROR [ 99%]
+tests/unit/test_acquisition.py::TestDataAcquisition::test_error_handling ERROR [100%]
+
+==================================== ERRORS ====================================
+_______ ERROR at setup of TestAnomalyDetection.test_file_size_anomalies ________
+
+self = <test_data_quality.TestAnomalyDetection object at 0x7fb85792e8a0>
+test_config = {'anomaly_detection': {'drift_threshold': 0.1, 'quality_threshold': 0.95, 'statistical_threshold': 3.0}, 'bias_analysi...olds': {'complexity_threshold': 15, 'doc_ratio_min': 0.05, 'duplicate_threshold': 0.2, 'file_size_max': 10000000, ...}}
+
+    @pytest.fixture(autouse=True)
+    def setup(self, test_config):
+>       self.anomaly_detector = PipelineAnomalyDetector(
+            thresholds=test_config["thresholds"]
+        )
+E       TypeError: PipelineAnomalyDetector.__init__() got an unexpected keyword argument 'thresholds'
+
+tests/anomaly/test_data_quality.py:11: TypeError
+_______ ERROR at setup of TestAnomalyDetection.test_complexity_anomalies _______
+
+self = <test_data_quality.TestAnomalyDetection object at 0x7fb85792fb60>
+test_config = {'anomaly_detection': {'drift_threshold': 0.1, 'quality_threshold': 0.95, 'statistical_threshold': 3.0}, 'bias_analysi...olds': {'complexity_threshold': 15, 'doc_ratio_min': 0.05, 'duplicate_threshold': 0.2, 'file_size_max': 10000000, ...}}
+
+    @pytest.fixture(autouse=True)
+    def setup(self, test_config):
+>       self.anomaly_detector = PipelineAnomalyDetector(
+            thresholds=test_config["thresholds"]
+        )
+E       TypeError: PipelineAnomalyDetector.__init__() got an unexpected keyword argument 'thresholds'
+
+tests/anomaly/test_data_quality.py:11: TypeError
+_______ ERROR at setup of TestAnomalyDetection.test_duplicate_detection ________
+
+self = <test_data_quality.TestAnomalyDetection object at 0x7fb85792fd70>
+test_config = {'anomaly_detection': {'drift_threshold': 0.1, 'quality_threshold': 0.95, 'statistical_threshold': 3.0}, 'bias_analysi...olds': {'complexity_threshold': 15, 'doc_ratio_min': 0.05, 'duplicate_threshold': 0.2, 'file_size_max': 10000000, ...}}
+
+    @pytest.fixture(autouse=True)
+    def setup(self, test_config):
+>       self.anomaly_detector = PipelineAnomalyDetector(
+            thresholds=test_config["thresholds"]
+        )
+E       TypeError: PipelineAnomalyDetector.__init__() got an unexpected keyword argument 'thresholds'
+
+tests/anomaly/test_data_quality.py:11: TypeError
+______ ERROR at setup of TestAnomalyDetection.test_statistical_anomalies _______
+
+self = <test_data_quality.TestAnomalyDetection object at 0x7fb8571f85f0>
+test_config = {'anomaly_detection': {'drift_threshold': 0.1, 'quality_threshold': 0.95, 'statistical_threshold': 3.0}, 'bias_analysi...olds': {'complexity_threshold': 15, 'doc_ratio_min': 0.05, 'duplicate_threshold': 0.2, 'file_size_max': 10000000, ...}}
+
+    @pytest.fixture(autouse=True)
+    def setup(self, test_config):
+>       self.anomaly_detector = PipelineAnomalyDetector(
+            thresholds=test_config["thresholds"]
+        )
+E       TypeError: PipelineAnomalyDetector.__init__() got an unexpected keyword argument 'thresholds'
+
+tests/anomaly/test_data_quality.py:11: TypeError
+______ ERROR at setup of TestAnomalyDetection.test_pii_pattern_detection _______
+
+self = <test_data_quality.TestAnomalyDetection object at 0x7fb8571f8080>
+test_config = {'anomaly_detection': {'drift_threshold': 0.1, 'quality_threshold': 0.95, 'statistical_threshold': 3.0}, 'bias_analysi...olds': {'complexity_threshold': 15, 'doc_ratio_min': 0.05, 'duplicate_threshold': 0.2, 'file_size_max': 10000000, ...}}
+
+    @pytest.fixture(autouse=True)
+    def setup(self, test_config):
+>       self.anomaly_detector = PipelineAnomalyDetector(
+            thresholds=test_config["thresholds"]
+        )
+E       TypeError: PipelineAnomalyDetector.__init__() got an unexpected keyword argument 'thresholds'
+
+tests/anomaly/test_data_quality.py:11: TypeError
+____ ERROR at setup of TestAnomalyDetection.test_language_distribution_bias ____
+
+self = <test_data_quality.TestAnomalyDetection object at 0x7fb8571f8650>
+test_config = {'anomaly_detection': {'drift_threshold': 0.1, 'quality_threshold': 0.95, 'statistical_threshold': 3.0}, 'bias_analysi...olds': {'complexity_threshold': 15, 'doc_ratio_min': 0.05, 'duplicate_threshold': 0.2, 'file_size_max': 10000000, ...}}
+
+    @pytest.fixture(autouse=True)
+    def setup(self, test_config):
+>       self.anomaly_detector = PipelineAnomalyDetector(
+            thresholds=test_config["thresholds"]
+        )
+E       TypeError: PipelineAnomalyDetector.__init__() got an unexpected keyword argument 'thresholds'
+
+tests/anomaly/test_data_quality.py:11: TypeError
+____ ERROR at setup of TestDataAcquisition.test_aws_credentials_validation _____
+
+self = <test_acquisition.TestDataAcquisition object at 0x7fb814da17f0>
+aws_credentials = {'aws_access_key_id': 'test_access_key', 'aws_secret_access_key': 'test_secret_key', 'is_mock': True, 'region': 'us-east-1'}
+temp_workspace = '/tmp/tmp9shls_mf'
+
+    @pytest.fixture(autouse=True)
+    def setup(self, aws_credentials, temp_workspace):
+>       self.data_acquisition = DataAcquisition(
+            aws_credentials=aws_credentials,
+            output_dir=temp_workspace
+        )
+E       TypeError: DataAcquisition.__init__() got an unexpected keyword argument 'aws_credentials'
+
+tests/unit/test_acquisition.py:10: TypeError
+_________ ERROR at setup of TestDataAcquisition.test_download_dataset __________
+
+self = <test_acquisition.TestDataAcquisition object at 0x7fb814da1b50>
+aws_credentials = {'aws_access_key_id': 'test_access_key', 'aws_secret_access_key': 'test_secret_key', 'is_mock': True, 'region': 'us-east-1'}
+temp_workspace = '/tmp/tmpkt8nqo2m'
+
+    @pytest.fixture(autouse=True)
+    def setup(self, aws_credentials, temp_workspace):
+>       self.data_acquisition = DataAcquisition(
+            aws_credentials=aws_credentials,
+            output_dir=temp_workspace
+        )
+E       TypeError: DataAcquisition.__init__() got an unexpected keyword argument 'aws_credentials'
+
+tests/unit/test_acquisition.py:10: TypeError
+________ ERROR at setup of TestDataAcquisition.test_metadata_validation ________
+
+self = <test_acquisition.TestDataAcquisition object at 0x7fb814da1dc0>
+aws_credentials = {'aws_access_key_id': 'test_access_key', 'aws_secret_access_key': 'test_secret_key', 'is_mock': True, 'region': 'us-east-1'}
+temp_workspace = '/tmp/tmpohpzpogl'
+
+    @pytest.fixture(autouse=True)
+    def setup(self, aws_credentials, temp_workspace):
+>       self.data_acquisition = DataAcquisition(
+            aws_credentials=aws_credentials,
+            output_dir=temp_workspace
+        )
+E       TypeError: DataAcquisition.__init__() got an unexpected keyword argument 'aws_credentials'
+
+tests/unit/test_acquisition.py:10: TypeError
+_______ ERROR at setup of TestDataAcquisition.test_file_size_validation ________
+
+self = <test_acquisition.TestDataAcquisition object at 0x7fb814da2030>
+aws_credentials = {'aws_access_key_id': 'test_access_key', 'aws_secret_access_key': 'test_secret_key', 'is_mock': True, 'region': 'us-east-1'}
+temp_workspace = '/tmp/tmpklp85laq'
+
+    @pytest.fixture(autouse=True)
+    def setup(self, aws_credentials, temp_workspace):
+>       self.data_acquisition = DataAcquisition(
+            aws_credentials=aws_credentials,
+            output_dir=temp_workspace
+        )
+E       TypeError: DataAcquisition.__init__() got an unexpected keyword argument 'aws_credentials'
+
+tests/unit/test_acquisition.py:10: TypeError
+________ ERROR at setup of TestDataAcquisition.test_sha256_verification ________
+
+self = <test_acquisition.TestDataAcquisition object at 0x7fb814da22a0>
+aws_credentials = {'aws_access_key_id': 'test_access_key', 'aws_secret_access_key': 'test_secret_key', 'is_mock': True, 'region': 'us-east-1'}
+temp_workspace = '/tmp/tmppp63fr3v'
+
+    @pytest.fixture(autouse=True)
+    def setup(self, aws_credentials, temp_workspace):
+>       self.data_acquisition = DataAcquisition(
+            aws_credentials=aws_credentials,
+            output_dir=temp_workspace
+        )
+E       TypeError: DataAcquisition.__init__() got an unexpected keyword argument 'aws_credentials'
+
+tests/unit/test_acquisition.py:10: TypeError
+__________ ERROR at setup of TestDataAcquisition.test_error_handling ___________
+
+self = <test_acquisition.TestDataAcquisition object at 0x7fb814da2510>
+aws_credentials = {'aws_access_key_id': 'test_access_key', 'aws_secret_access_key': 'test_secret_key', 'is_mock': True, 'region': 'us-east-1'}
+temp_workspace = '/tmp/tmpewdt3fnb'
+
+    @pytest.fixture(autouse=True)
+    def setup(self, aws_credentials, temp_workspace):
+>       self.data_acquisition = DataAcquisition(
+            aws_credentials=aws_credentials,
+            output_dir=temp_workspace
+        )
+E       TypeError: DataAcquisition.__init__() got an unexpected keyword argument 'aws_credentials'
+
+tests/unit/test_acquisition.py:10: TypeError
+=================================== FAILURES ===================================
+_________________ TestBiasAnalysis.test_language_distribution __________________
+
+self = <test_bias_analysis.TestBiasAnalysis object at 0x7fb857c9f140>
+temp_workspace = '/tmp/tmpp8nzqk2n'
+
+    def test_language_distribution(self, temp_workspace):
+        """Test language distribution analysis."""
+        # Create test dataset with known distribution
+        dataset = {
+            "python": 50,
+            "java": 30,
+            "cpp": 15,
+            "javascript": 5
+        }
+    
+>       distribution = analyze_language_distribution(dataset)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       NameError: name 'analyze_language_distribution' is not defined
+
+tests/anomaly/test_bias_analysis.py:30: NameError
+____________________ TestBiasAnalysis.test_complexity_bias _____________________
+
+self = <test_bias_analysis.TestBiasAnalysis object at 0x7fb857c02600>
+temp_workspace = '/tmp/tmpljd11o4q'
+
+    def test_complexity_bias(self, temp_workspace):
+        """Test code complexity distribution analysis."""
+        # Generate synthetic complexity scores
+        complexities = {
+            "file1.py": 5,   # Low complexity
+            "file2.py": 10,  # Medium complexity
+            "file3.py": 15,  # High complexity
+            "file4.py": 8    # Medium complexity
+        }
+    
+>       distribution = analyze_complexity_distribution(complexities)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       NameError: name 'analyze_complexity_distribution' is not defined
+
+tests/anomaly/test_bias_analysis.py:47: NameError
+____________________ TestBiasAnalysis.test_license_fairness ____________________
+
+self = <test_bias_analysis.TestBiasAnalysis object at 0x7fb85792e780>
+temp_workspace = '/tmp/tmpf_2ny5kb'
+
+    def test_license_fairness(self, temp_workspace):
+        """Test license distribution fairness."""
+        licenses = {
+            "MIT": 60,
+            "Apache-2.0": 20,
+            "GPL-3.0": 15,
+            "BSD-3-Clause": 5
+        }
+    
+>       distribution = analyze_license_distribution(licenses)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       NameError: name 'analyze_license_distribution' is not defined
+
+tests/anomaly/test_bias_analysis.py:63: NameError
+____________________ TestBiasAnalysis.test_fairness_metrics ____________________
+
+self = <test_bias_analysis.TestBiasAnalysis object at 0x7fb85792e750>
+temp_workspace = '/tmp/tmpbf4odjkq'
+
+    def test_fairness_metrics(self, temp_workspace):
+        """Test fairness metrics calculation."""
+        dataset_metrics = {
+            "language_counts": {
+                "python": 100,
+                "java": 80,
+                "cpp": 60,
+                "javascript": 40
+            },
+            "complexity_scores": {
+                "python": {"mean": 8, "std": 2},
+                "java": {"mean": 10, "std": 3},
+                "cpp": {"mean": 12, "std": 4},
+                "javascript": {"mean": 7, "std": 2}
+            }
+        }
+    
+>       fairness_scores = calculate_fairness_metrics(dataset_metrics)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       NameError: name 'calculate_fairness_metrics' is not defined
+
+tests/anomaly/test_bias_analysis.py:86: NameError
+_________________ TestBiasAnalysis.test_complexity_thresholds __________________
+
+self = <test_bias_analysis.TestBiasAnalysis object at 0x7fb85792e5d0>
+test_config = {'anomaly_detection': {'drift_threshold': 0.1, 'quality_threshold': 0.95, 'statistical_threshold': 3.0}, 'bias_analysi...olds': {'complexity_threshold': 15, 'doc_ratio_min': 0.05, 'duplicate_threshold': 0.2, 'file_size_max': 10000000, ...}}
+
+    def test_complexity_thresholds(self, test_config):
+        """Test complexity threshold fairness across languages."""
+        complexities = {
+            "python_file.py": 12,
+            "java_file.java": 14,
+            "cpp_file.cpp": 13,
+            "js_file.js": 11
+        }
+    
+>       distribution = analyze_complexity_distribution(complexities)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       NameError: name 'analyze_complexity_distribution' is not defined
+
+tests/anomaly/test_bias_analysis.py:105: NameError
+____________ TestBiasDetection.test_code_complexity_bias_detection _____________
+
+self = <test_bias_detection.TestBiasDetection object at 0x7fb8571fa2d0>
+
+    def test_code_complexity_bias_detection(self):
+        """Test detection of code complexity bias"""
+    
+        # Create dataset with complexity bias
+>       complexity_biased_data = pd.DataFrame({
+            'language': ['python'] * 40 + ['java'] * 35 + ['cpp'] * 25,
+            'complexity': [2, 3, 2, 1, 2] * 40 + [15, 20, 18, 22, 25] * 7,  # Java files much more complex
+            'file_path': [f'file_{i}.py' for i in range(100)]
+        })
+
+tests/bias/test_bias_detection.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../.venv/lib/python3.12/site-packages/pandas/core/frame.py:782: in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.venv/lib/python3.12/site-packages/pandas/core/internals/construction.py:503: in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.venv/lib/python3.12/site-packages/pandas/core/internals/construction.py:114: in arrays_to_mgr
+    index = _extract_index(arrays)
+            ^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = [['python', 'python', 'python', 'python', 'python', 'python', ...], [2, 3, 2, 1, 2, 2, ...], ['file_0.py', 'file_1.py', 'file_2.py', 'file_3.py', 'file_4.py', 'file_5.py', ...]]
+
+    def _extract_index(data) -> Index:
+        """
+        Try to infer an Index from the passed data, raise ValueError on failure.
+        """
+        index: Index
+        if len(data) == 0:
+            return default_index(0)
+    
+        raw_lengths = []
+        indexes: list[list[Hashable] | Index] = []
+    
+        have_raw_arrays = False
+        have_series = False
+        have_dicts = False
+    
+        for val in data:
+            if isinstance(val, ABCSeries):
+                have_series = True
+                indexes.append(val.index)
+            elif isinstance(val, dict):
+                have_dicts = True
+                indexes.append(list(val.keys()))
+            elif is_list_like(val) and getattr(val, "ndim", 1) == 1:
+                have_raw_arrays = True
+                raw_lengths.append(len(val))
+            elif isinstance(val, np.ndarray) and val.ndim > 1:
+                raise ValueError("Per-column arrays must each be 1-dimensional")
+    
+        if not indexes and not raw_lengths:
+            raise ValueError("If using all scalar values, you must pass an index")
+    
+        if have_series:
+            index = union_indexes(indexes)
+        elif have_dicts:
+            index = union_indexes(indexes, sort=False)
+    
+        if have_raw_arrays:
+            lengths = list(set(raw_lengths))
+            if len(lengths) > 1:
+>               raise ValueError("All arrays must be of the same length")
+E               ValueError: All arrays must be of the same length
+
+../.venv/lib/python3.12/site-packages/pandas/core/internals/construction.py:677: ValueError
+_________ TestBiasDetection.test_comprehensive_bias_report_generation __________
+
+self = <test_bias_detection.TestBiasDetection object at 0x7fb8571fa660>
+bias_test_dataset =       language  stars       license     file_size  complexity
+0       python   1000           MIT  1.118410e+06    3.3...-Clause  4.854642e+03    2.716408
+99  javascript     10  BSD-2-Clause  4.786424e+06    0.402069
+
+[100 rows x 5 columns]
+
+    def test_comprehensive_bias_report_generation(self, bias_test_dataset):
+        """Test comprehensive bias report generation"""
+    
+        analyzer = ComprehensiveBiasAnalyzer()
+    
+        # Use the bias test dataset fixture
+        file_data = bias_test_dataset.copy()
+    
+        # Add some additional columns for comprehensive analysis
+        file_data['file_size'] = np.random.lognormal(8, 2, len(file_data))
+        file_data['complexity'] = np.random.exponential(5, len(file_data))
+    
+        dataset_info = {
+            'file_data': file_data,
+            'repo_data': bias_test_dataset[['stars', 'license']],
+            'before_pii_files': [],  # Empty for this test
+            'after_pii_files': []
+        }
+    
+        # Analyze dataset bias
+        bias_results = analyzer.analyze_dataset_bias(dataset_info)
+    
+        # Generate comprehensive report
+>       report = analyzer.generate_bias_report(bias_results)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ComprehensiveBiasAnalyzer' object has no attribute 'generate_bias_report'
+
+tests/bias/test_bias_detection.py:367: AttributeError
+__________ TestFairnessValidation.test_demographic_parity_validation ___________
+
+self = <test_bias_detection.TestFairnessValidation object at 0x7fb8571fa8a0>
+
+    def test_demographic_parity_validation(self):
+        """Test demographic parity across different groups"""
+    
+        # Create synthetic dataset with demographic information
+        synthetic_data = pd.DataFrame({
+            'group': ['A'] * 40 + ['B'] * 35 + ['C'] * 25,  # Different sized groups
+            'outcome': [1] * 30 + [0] * 10 + [1] * 25 + [0] * 10 + [1] * 15 + [0] * 10,  # Different success rates
+            'language': np.random.choice(['python', 'java', 'cpp'], 100)
+        })
+    
+        # Calculate success rates by group
+        success_rates = synthetic_data.groupby('group')['outcome'].mean()
+    
+        # Check for demographic parity
+        rate_variance = success_rates.var()
+        max_rate_diff = success_rates.max() - success_rates.min()
+    
+        # Significant differences indicate potential bias
+>       assert rate_variance > 0.01 or max_rate_diff > 0.2, "Test data should show bias for validation"
+E       AssertionError: Test data should show bias for validation
+E       assert (np.float64(0.006139455782312928) > 0.01 or np.float64(0.15000000000000002) > 0.2)
+
+tests/bias/test_bias_detection.py:420: AssertionError
+_____________ TestPipelineIntegration.test_full_pipeline_execution _____________
+
+self = <test_pipeline_integration.TestPipelineIntegration object at 0x7fb8571fba40>
+temp_workspace = '/tmp/tmpm38d22s4'
+aws_credentials = {'aws_access_key_id': 'test_access_key', 'aws_secret_access_key': 'test_secret_key', 'is_mock': True, 'region': 'us-east-1'}
+test_config = {'anomaly_detection': {'drift_threshold': 0.1, 'quality_threshold': 0.95, 'statistical_threshold': 3.0}, 'bias_analysi...olds': {'complexity_threshold': 15, 'doc_ratio_min': 0.05, 'duplicate_threshold': 0.2, 'file_size_max': 10000000, ...}}
+
+        def test_full_pipeline_execution(self, temp_workspace, aws_credentials, test_config):
+            """Test complete pipeline execution from acquisition to final output"""
+    
+            # Create test data directory structure
+            raw_dir = os.path.join(temp_workspace, 'raw')
+            processed_dir = os.path.join(temp_workspace, 'processed')
+            os.makedirs(raw_dir, exist_ok=True)
+            os.makedirs(processed_dir, exist_ok=True)
+    
+            # Create sample raw files with various characteristics
+            test_files = {
+                'python_sample.py': '''
+    def fibonacci(n):
+        """Calculate fibonacci number."""
+        if n <= 1:
+            return n
+        return fibonacci(n-1) + fibonacci(n-2)
+    
+    # Contact: developer@company.com
+    API_KEY = "sk-1234567890abcdef"
+    ''',
+                'java_sample.java': '''
+    public class Calculator {
+        public int add(int a, int b) {
+            return a + b;
+        }
+    
+        // Email: admin@enterprise.org
+        private String apiKey = "abc123def456ghi789";
+    }
+    ''',
+                'duplicate1.py': 'print("duplicate content")',
+                'duplicate2.py': 'print("duplicate content")',
+                'large_file.cpp': '#include <iostream>\n' + 'int var{};\n' * 5000,
+            }
+    
+            file_paths = []
+            for filename, content in test_files.items():
+                filepath = os.path.join(raw_dir, filename)
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                file_paths.append(filepath)
+    
+            # Execute pipeline stages
+            results = self._run_full_pipeline(raw_dir, processed_dir, aws_credentials)
+    
+            # Verify pipeline execution
+            assert results['success'] == True
+            assert results['stages_completed'] >= 3
+            assert len(results['processed_files']) > 0
+    
+            # Verify PII removal
+            for processed_file in results['processed_files']:
+                if os.path.exists(processed_file):
+                    with open(processed_file, 'r', encoding='utf-8') as f:
+                        content = f.read()
+>                       assert 'developer@company.com' not in content
+E                       assert 'developer@company.com' not in '\ndef fibon...890abcdef"\n'
+E                         
+E                         'developer@company.com' is contained here:
+E                           
+E                           def fibonacci(n):
+E                               """Calculate fibonacci number."""
+E                               if n <= 1:
+E                                   return n...
+E                         
+E                         ...Full output truncated (4 lines hidden), use '-vv' to show
+
+tests/integration/test_pipeline_integration.py:110: AssertionError
+________________ TestPipelineIntegration.test_data_consistency _________________
+
+self = <test_pipeline_integration.TestPipelineIntegration object at 0x7fb85721c050>
+sample_code_data = {'cpp_sample': '\n#include <iostream>\n#include <vector>\n#include <algorithm>\n\n/**\n * Binary search implementation...Missing closing parenthesis and colon\n    print("This is broken code"\n    return None  # Unreachable\n        ', ...}
+
+    def test_data_consistency(self, sample_code_data):
+        """Test data consistency through pipeline stages"""
+        # Process sample data
+>       processed_data = self.preprocessor.process_content(
+                         ^^^^^^^^^^^^^^^^^
+            sample_code_data["python_sample"]
+        )
+E       AttributeError: 'TestPipelineIntegration' object has no attribute 'preprocessor'
+
+tests/integration/test_pipeline_integration.py:173: AttributeError
+____________ TestPipelinePerformance.test_small_dataset_performance ____________
+
+self = <test_performance.TestPipelinePerformance object at 0x7fb8571fab70>
+temp_workspace = '/tmp/tmpe3zbeo7t'
+
+    def test_small_dataset_performance(self, temp_workspace):
+        """Test performance with small dataset (100 files)"""
+    
+        dataset_size = 100
+        results = self._run_performance_test(temp_workspace, dataset_size, "small")
+    
+        # Performance expectations for small dataset
+        assert results['processing_time'] < 30  # Should complete within 30 seconds
+        assert results['throughput'] > 3  # At least 3 files per second
+>       assert results['memory_peak_mb'] < 100  # Should use less than 100MB
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 287.4921875 < 100
+
+tests/performance/test_performance.py:50: AssertionError
+___________ TestPipelinePerformance.test_cpu_utilization_efficiency ____________
+
+self = <test_performance.TestPipelinePerformance object at 0x7fb85721dc40>
+temp_workspace = '/tmp/tmp3aofsfzs'
+
+    def test_cpu_utilization_efficiency(self, temp_workspace):
+        """Test CPU utilization efficiency during processing"""
+    
+        # Monitor CPU usage during processing
+        cpu_samples = []
+    
+        def cpu_monitor():
+            while not stop_monitoring.is_set():
+                cpu_percent = psutil.cpu_percent(interval=1)
+                cpu_samples.append(cpu_percent)
+    
+        # Create test dataset
+        dataset_size = 500
+        self._create_test_dataset(temp_workspace, dataset_size, "cpu_test")
+    
+        # Start CPU monitoring
+        stop_monitoring = threading.Event()
+        monitor_thread = threading.Thread(target=cpu_monitor)
+        monitor_thread.start()
+    
+        # Run processing
+        start_time = time.time()
+        results = self._run_performance_test(temp_workspace, dataset_size, "cpu_efficiency")
+        processing_time = time.time() - start_time
+    
+        # Stop monitoring
+        stop_monitoring.set()
+        monitor_thread.join()
+    
+        if cpu_samples:
+            avg_cpu = statistics.mean(cpu_samples)
+            max_cpu = max(cpu_samples)
+    
+            # CPU utilization should be reasonable
+>           assert avg_cpu > 10, "CPU utilization too low - inefficient processing"
+E           AssertionError: CPU utilization too low - inefficient processing
+E           assert 0.45 > 10
+
+tests/performance/test_performance.py:281: AssertionError
+________________ TestDataAcquisition.test_languages_configured _________________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e02990>
+
+    def test_languages_configured(self):
+        """Test that required languages are configured"""
+        config_path = os.path.join(os.path.dirname(__file__), '..', 'configs', 'data_config.yaml')
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+    
+        required_languages = ['python', 'java', 'javascript', 'cpp']
+        configured_languages = config.get('languages', [])
+    
+        for lang in required_languages:
+>           assert lang in configured_languages, f"Required language '{lang}' not configured"
+E           AssertionError: Required language 'python' not configured
+E           assert 'python' in ['Python', 'Java', 'C++', 'JavaScript']
+
+tests/test_Acquisition.py:77: AssertionError
+___________ TestDataAcquisition.test_data_acquisition_initialization ___________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e02d20>
+mock_boto = <MagicMock name='client' id='140429712403264'>
+
+    @patch('boto3.client')
+    def test_data_acquisition_initialization(self, mock_boto):
+        """Test DataAcquisition class initialization"""
+        config = {
+            'aws': {'region': 'us-east-1'},
+            'datasets': {'huggingface_name': 'bigcode/the-stack-v2'},
+            'filters': {'stars': {'min': 10}}
+        }
+    
+        # Mock S3 client
+        mock_s3 = MagicMock()
+        mock_boto.return_value = mock_s3
+    
+        acquirer = DataAcquisition(config)
+>       assert acquirer.config == config
+               ^^^^^^^^^^^^^^^
+E       AttributeError: 'DataAcquisition' object has no attribute 'config'
+
+tests/test_Acquisition.py:114: AttributeError
+__________ TestDataAcquisition.test_huggingface_filter_initialization __________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e02f00>
+
+    def test_huggingface_filter_initialization(self):
+        """Test HuggingFaceDatasetFilter initialization"""
+        config = {
+            'filters': {
+                'stars': {'min': 10, 'max': 1000},
+                'languages': ['python', 'java'],
+                'licenses': ['mit', 'apache-2.0']
+            }
+        }
+    
+        filter_obj = HuggingFaceDatasetFilter(config)
+>       assert filter_obj.config == config
+               ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'HuggingFaceDatasetFilter' object has no attribute 'config'
+
+tests/test_Acquisition.py:127: AttributeError
+______________ TestDataAcquisition.test_metadata_filtering_stars _______________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e030e0>
+sample_metadata = {'repository_metadata': [{'files': [{'content_url': 'https://example.com/file1', 'path': 'src/main.py', 'sha256': 'abc...sha256': 'def456ghi789', 'size': 1536}], 'language': 'Java', 'license': 'Apache-2.0', 'repo_name': 'test/repo2', ...}]}
+
+    def test_metadata_filtering_stars(self, sample_metadata):
+        """Test metadata filtering by star count"""
+        config = {'filters': {'stars': {'min': 100}}}
+        filter_obj = HuggingFaceDatasetFilter(config)
+    
+        # Test with sample metadata
+        test_repos = [
+            {'repo_name': 'test/high_stars', 'stars': 150},
+            {'repo_name': 'test/low_stars', 'stars': 50}
+        ]
+    
+        filtered = filter_obj.apply_filters(test_repos)
+    
+        # Should only keep high star repo
+>       assert len(filtered) == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = len([{'repo_name': 'test/high_stars', 'stars': 150}, {'repo_name': 'test/low_stars', 'stars': 50}])
+
+tests/test_Acquisition.py:143: AssertionError
+_____________ TestDataAcquisition.test_metadata_filtering_language _____________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e032c0>
+sample_metadata = {'repository_metadata': [{'files': [{'content_url': 'https://example.com/file1', 'path': 'src/main.py', 'sha256': 'abc...sha256': 'def456ghi789', 'size': 1536}], 'language': 'Java', 'license': 'Apache-2.0', 'repo_name': 'test/repo2', ...}]}
+
+    def test_metadata_filtering_language(self, sample_metadata):
+        """Test metadata filtering by programming language"""
+        config = {'filters': {'languages': ['python', 'java']}}
+        filter_obj = HuggingFaceDatasetFilter(config)
+    
+        test_repos = [
+            {'repo_name': 'test/python_repo', 'language': 'python'},
+            {'repo_name': 'test/java_repo', 'language': 'java'},
+            {'repo_name': 'test/cpp_repo', 'language': 'cpp'}
+        ]
+    
+        filtered = filter_obj.apply_filters(test_repos)
+    
+        # Should only keep python and java repos
+>       assert len(filtered) == 2
+E       AssertionError: assert 3 == 2
+E        +  where 3 = len([{'language': 'python', 'repo_name': 'test/python_repo'}, {'language': 'java', 'repo_name': 'test/java_repo'}, {'language': 'cpp', 'repo_name': 'test/cpp_repo'}])
+
+tests/test_Acquisition.py:160: AssertionError
+__________________ TestDataAcquisition.test_sha256_validation __________________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e034a0>
+mock_get = <MagicMock name='get' id='140428600248992'>
+temp_workspace = '/tmp/tmp9issduui'
+
+    @patch('requests.get')
+    def test_sha256_validation(self, mock_get, temp_workspace):
+        """Test SHA256 checksum validation during download"""
+        # Create test file content
+        test_content = b"print('Hello, World!')"
+        expected_sha256 = hashlib.sha256(test_content).hexdigest()
+    
+        # Mock HTTP response
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.content = test_content
+        mock_get.return_value = mock_response
+    
+        downloader = SWHDownloader({'checksums_enabled': True})
+    
+        # Test download with correct checksum
+        output_path = os.path.join(temp_workspace, 'test_file.py')
+>       result = downloader.download_file(
+            'https://example.com/file.py',
+            output_path,
+            expected_sha256=expected_sha256
+        )
+E       TypeError: SWHDownloader.download_file() got an unexpected keyword argument 'expected_sha256'
+
+tests/test_Acquisition.py:183: TypeError
+______________ TestDataAcquisition.test_sha256_validation_failure ______________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e03680>
+temp_workspace = '/tmp/tmpcoejmeve'
+
+    def test_sha256_validation_failure(self, temp_workspace):
+        """Test SHA256 validation failure handling"""
+        with patch('requests.get') as mock_get:
+            # Create mismatched content
+            actual_content = b"print('Hello, World!')"
+            wrong_sha256 = hashlib.sha256(b"different content").hexdigest()
+    
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.content = actual_content
+            mock_get.return_value = mock_response
+    
+            downloader = SWHDownloader({'checksums_enabled': True})
+    
+            output_path = os.path.join(temp_workspace, 'test_file.py')
+>           result = downloader.download_file(
+                'https://example.com/file.py',
+                output_path,
+                expected_sha256=wrong_sha256
+            )
+E           TypeError: SWHDownloader.download_file() got an unexpected keyword argument 'expected_sha256'
+
+tests/test_Acquisition.py:211: TypeError
+_________________ TestDataAcquisition.test_aws_s3_integration __________________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e03830>
+mock_boto = <MagicMock name='client' id='140428600251344'>
+
+    @patch('boto3.client')
+    def test_aws_s3_integration(self, mock_boto):
+        """Test AWS S3 integration for file downloads"""
+        # Mock S3 client and operations
+        mock_s3 = MagicMock()
+        mock_s3.download_file.return_value = None
+        mock_s3.head_object.return_value = {'ContentLength': 1024}
+        mock_boto.return_value = mock_s3
+    
+        config = {
+            'aws': {'region': 'us-east-1', 'bucket': 'test-bucket'},
+            's3_enabled': True
+        }
+    
+        downloader = SWHDownloader(config)
+    
+        # Test S3 download
+>       result = downloader.download_from_s3('test-key', '/tmp/test-file')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'SWHDownloader' object has no attribute 'download_from_s3'
+
+tests/test_Acquisition.py:238: AttributeError
+_________________ TestDataAcquisition.test_file_size_filtering _________________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e034d0>
+temp_workspace = '/tmp/tmpckh5uxbo'
+test_files = {'duplicate1.py': '/tmp/tmpckh5uxbo/duplicate1.py', 'duplicate2.py': '/tmp/tmpckh5uxbo/duplicate2.py', 'large_file.py': '/tmp/tmpckh5uxbo/large_file.py', 'malformed.py': '/tmp/tmpckh5uxbo/malformed.py', ...}
+
+    def test_file_size_filtering(self, temp_workspace, test_files):
+        """Test filtering files by size constraints"""
+        organizer = DatasetOrganizer({
+            'filters': {
+                'file_size': {
+                    'min_bytes': 100,
+                    'max_bytes': 10000
+                }
+            }
+        })
+    
+        # Create files of different sizes
+        small_file = os.path.join(temp_workspace, 'small.py')
+        with open(small_file, 'w') as f:
+            f.write('# Small file')  # < 100 bytes
+    
+        normal_file = os.path.join(temp_workspace, 'normal.py')
+        with open(normal_file, 'w') as f:
+            f.write('# Normal file\n' + 'print("hello")\n' * 20)  # ~300 bytes
+    
+        large_file = os.path.join(temp_workspace, 'large.py')
+        with open(large_file, 'w') as f:
+            f.write('# Large file\n' + 'x = 1\n' * 1000)  # > 10KB
+    
+        files = [small_file, normal_file, large_file]
+>       filtered_files = organizer.filter_by_size(files)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'DatasetOrganizer' object has no attribute 'filter_by_size'
+
+tests/test_Acquisition.py:269: AttributeError
+_______________ TestDataAcquisition.test_language_classification _______________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e03050>
+temp_workspace = '/tmp/tmpdnkgpcxy'
+
+    def test_language_classification(self, temp_workspace):
+        """Test programming language classification by file extension"""
+        classifier = LanguageClassifier()
+    
+        # Create test files with different extensions
+        test_cases = [
+            ('test.py', 'python'),
+            ('Test.java', 'java'),
+            ('main.cpp', 'cpp'),
+            ('app.js', 'javascript'),
+            ('program.c', 'c'),
+            ('main.go', 'go'),
+            ('lib.rs', 'rust')
+        ]
+    
+        for filename, expected_lang in test_cases:
+            filepath = os.path.join(temp_workspace, filename)
+            with open(filepath, 'w') as f:
+                f.write('// Test file')
+    
+            detected_lang = classifier.classify_file(filepath)
+>           assert detected_lang == expected_lang, f"Failed to classify {filename} as {expected_lang}"
+E           AssertionError: Failed to classify Test.java as java
+E           assert 'python' == 'java'
+E             
+E             - java
+E             + python
+
+tests/test_Acquisition.py:298: AssertionError
+_______________ TestDataAcquisition.test_duplicate_url_handling ________________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e02a80>
+
+    def test_duplicate_url_handling(self):
+        """Test handling of duplicate download URLs"""
+        download_manager = FileDownloadManager({'skip_duplicates': True})
+    
+        # Test with duplicate URLs
+        files_to_download = [
+            {'url': 'https://example.com/file1.py', 'path': '/tmp/file1.py'},
+            {'url': 'https://example.com/file2.py', 'path': '/tmp/file2.py'},
+            {'url': 'https://example.com/file1.py', 'path': '/tmp/file1_duplicate.py'},  # Duplicate
+        ]
+    
+>       unique_urls = download_manager.remove_duplicate_urls(files_to_download)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'FileDownloadManager' object has no attribute 'remove_duplicate_urls'
+
+tests/test_Acquisition.py:311: AttributeError
+_______________ TestDataAcquisition.test_download_error_handling _______________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e039b0>
+temp_workspace = '/tmp/tmpogfvkuyc'
+
+    def test_download_error_handling(self, temp_workspace):
+        """Test error handling during file downloads"""
+        with patch('requests.get') as mock_get:
+            # Mock HTTP error
+            mock_get.side_effect = Exception("Network error")
+    
+            downloader = SWHDownloader({'retry_attempts': 2})
+    
+            output_path = os.path.join(temp_workspace, 'test_file.py')
+            result = downloader.download_file('https://example.com/broken', output_path)
+    
+            # Should handle error gracefully
+>           assert result == False
+E           assert True == False
+
+tests/test_Acquisition.py:330: AssertionError
+______________ TestDataAcquisition.test_output_directories_exist _______________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e03b90>
+
+    def test_output_directories_exist(self):
+        """Test that output directories exist for all languages"""
+        languages = ["python", "java", "cpp", "javascript"]
+    
+        for lang in languages:
+            path = f"data/code_files/{lang}"
+>           assert os.path.exists(path), f"Output directory for {lang} not found: {path}"
+E           AssertionError: Output directory for python not found: data/code_files/python
+E           assert False
+E            +  where False = <function exists at 0x7fb8d3b93880>('data/code_files/python')
+E            +    where <function exists at 0x7fb8d3b93880> = <module 'posixpath' (frozen)>.exists
+E            +      where <module 'posixpath' (frozen)> = os.path
+
+tests/test_Acquisition.py:350: AssertionError
+________________ TestDataAcquisition.test_metadata_files_exist _________________
+
+self = <tests.test_Acquisition.TestDataAcquisition object at 0x7fb815e03d70>
+
+    def test_metadata_files_exist(self):
+        """Test that filtered metadata files exist for all languages"""
+        languages = ["python", "java", "cpp", "javascript"]
+    
+        for lang in languages:
+            path = f"data/filtered_metadata_{lang}.json"
+>           assert os.path.exists(path), f"Metadata file for {lang} not found: {path}"
+E           AssertionError: Metadata file for python not found: data/filtered_metadata_python.json
+E           assert False
+E            +  where False = <function exists at 0x7fb8d3b93880>('data/filtered_metadata_python.json')
+E            +    where <function exists at 0x7fb8d3b93880> = <module 'posixpath' (frozen)>.exists
+E            +      where <module 'posixpath' (frozen)> = os.path
+
+tests/test_Acquisition.py:358: AssertionError
+___________ TestRequirements.test_required_packages_in_requirements ____________
+
+self = <tests.test_Acquisition.TestRequirements object at 0x7fb815e48860>
+
+    def test_required_packages_in_requirements(self):
+        """Test that critical packages are in requirements.txt"""
+>       with open("requirements.txt", "r") as f:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'requirements.txt'
+
+tests/test_Acquisition.py:431: FileNotFoundError
+_____________________ TestPIIRemoval.test_api_key_removal ______________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_api_key_removal>
+
+    def test_api_key_removal(self):
+        """Test API key detection and removal"""
+        test_cases = [
+            'API_KEY = "sk-1234567890abcdef1234567890abcdef"',
+            'secret_key: "abc123def456ghi789jkl012mno345pqr678"',
+            'access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9"'
+        ]
+    
+        for text in test_cases:
+            cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+>           self.assertIn("[REDACTED]", cleaned)
+E           AssertionError: '[REDACTED]' not found in 'API_KEY = "sk-1234567890abcdef1234567890abcdef"'
+
+tests/test_preprocessing.py:105: AssertionError
+___________________ TestPIIRemoval.test_credit_card_removal ____________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_credit_card_removal>
+
+    def test_credit_card_removal(self):
+        """Test credit card number detection and removal"""
+        test_cases = [
+            "Card: 4111-1111-1111-1111",
+            "Credit Card: 5555555555554444",
+            "Payment: 378282246310005"
+        ]
+    
+        for text in test_cases:
+            cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+            # Should remove credit card patterns
+            import re
+            cc_pattern = r'\b(?:\d{4}[-\s]?){3}\d{4}\b'
+            remaining_ccs = re.findall(cc_pattern, cleaned)
+>           self.assertEqual(len(remaining_ccs), 0)
+E           AssertionError: 1 != 0
+
+tests/test_preprocessing.py:168: AssertionError
+______________ TestPIIRemoval.test_email_removal_multiple_formats ______________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_email_removal_multiple_formats>
+
+    def test_email_removal_multiple_formats(self):
+        """Test multiple email format detection"""
+        test_cases = [
+            "simple@example.com",
+            "user.name@sub.domain.org",
+            "test+tag@gmail.com",
+            "user_123@company.co.uk",
+            "firstname.lastname@university.edu"
+        ]
+    
+        for email in test_cases:
+            text = f"Email: {email}"
+            cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+>           self.assertNotIn(email, cleaned, f"Failed to remove email: {email}")
+E           AssertionError: 'simple@example.com' unexpectedly found in 'Email: simple@example.com' : Failed to remove email: simple@example.com
+
+tests/test_preprocessing.py:83: AssertionError
+___________________ TestPIIRemoval.test_github_token_removal ___________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_github_token_removal>
+
+    def test_github_token_removal(self):
+        """Test GitHub token detection and removal"""
+        text = 'GITHUB_TOKEN = "ghp_1234567890abcdefghijklmnopqrstuvwxyz123456"'
+        cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+    
+        self.assertNotIn("ghp_1234567890abcdefghijklmnopqrstuvwxyz123456", cleaned)
+>       self.assertIn("[REDACTED]", cleaned)
+E       AssertionError: '[REDACTED]' not found in 'GITHUB_TOKEN = "[TOKEN_REMOVED]"'
+
+tests/test_preprocessing.py:92: AssertionError
+____________________ TestPIIRemoval.test_ip_address_removal ____________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_ip_address_removal>
+
+    def test_ip_address_removal(self):
+        """Test IP address detection and removal"""
+        test_cases = [
+            "Server IP: 192.168.1.100",
+            "Connect to 10.0.0.1 on port 8080",
+            "Public IP 203.0.113.42 is accessible",
+            "Localhost 127.0.0.1 for testing"
+        ]
+    
+        for text in test_cases:
+            cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+            # Check that IP patterns are removed
+            import re
+            ip_pattern = r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
+            remaining_ips = re.findall(ip_pattern, cleaned)
+>           self.assertEqual(len(remaining_ips), 0, f"IP address not removed from: {text}")
+E           AssertionError: 1 != 0 : IP address not removed from: Server IP: 192.168.1.100
+
+tests/test_preprocessing.py:123: AssertionError
+___________________ TestPIIRemoval.test_phone_number_removal ___________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_phone_number_removal>
+
+    def test_phone_number_removal(self):
+        """Test phone number detection and removal"""
+        test_cases = [
+            "Call me at +1-555-123-4567",
+            "Phone: (555) 987-6543",
+            "Contact: 555.123.4567",
+            "Mobile: 15551234567"
+        ]
+    
+        for text in test_cases:
+            cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+>           self.assertTrue(stats.get('phone_numbers', 0) >= 1 or "[REDACTED]" in cleaned)
+E           AssertionError: False is not true
+
+tests/test_preprocessing.py:136: AssertionError
+______________ TestPIIRemoval.test_pii_removal_concurrent_safety _______________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_pii_removal_concurrent_safety>
+
+    def test_pii_removal_concurrent_safety(self):
+        """Test PII removal thread safety for concurrent operations"""
+        import threading
+        import concurrent.futures
+    
+        def remove_pii_worker(text_id):
+            text = f"Test {text_id}: contact user{text_id}@test.com"
+            cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+            return stats.get('emails', 0)
+    
+        # Run multiple threads concurrently
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(remove_pii_worker, i) for i in range(20)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+    
+        # All should have detected exactly 1 email
+>       self.assertTrue(all(count == 1 for count in results))
+E       AssertionError: False is not true
+
+tests/test_preprocessing.py:310: AssertionError
+______________ TestPIIRemoval.test_pii_removal_encoding_handling _______________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_pii_removal_encoding_handling>
+
+    def test_pii_removal_encoding_handling(self):
+        """Test PII removal with different text encodings"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Test UTF-8 with special characters
+            utf8_file = os.path.join(temp_dir, "test_utf8.py")
+            content = "# User: josé.garcía@empresa.com\n# IP: 192.168.1.1"
+    
+            with open(utf8_file, 'w', encoding='utf-8') as f:
+                f.write(content)
+    
+>           success, stats = self.pii_remover.remove_pii_from_file(utf8_file)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'PIIRemover' object has no attribute 'remove_pii_from_file'. Did you mean: 'remove_pii_from_text'?
+
+tests/test_preprocessing.py:265: AttributeError
+_______________ TestPIIRemoval.test_pii_removal_file_operations ________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_pii_removal_file_operations>
+
+        def test_pii_removal_file_operations(self):
+            """Test PII removal from actual files"""
+            with tempfile.TemporaryDirectory() as temp_dir:
+                test_file = os.path.join(temp_dir, "test_pii.py")
+    
+                # Create file with PII
+                pii_content = """
+    # Configuration file with PII
+    DATABASE_USER = "admin@company.com"
+    API_KEY = "ghp_abcdefghijklmnopqrstuvwxyz123456789"
+    SERVER_IP = "192.168.1.100"
+    PHONE = "+1-555-123-4567"
+    """
+    
+                with open(test_file, 'w') as f:
+                    f.write(pii_content)
+    
+                # Remove PII
+>               success, stats = self.pii_remover.remove_pii_from_file(test_file)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AttributeError: 'PIIRemover' object has no attribute 'remove_pii_from_file'. Did you mean: 'remove_pii_from_text'?
+
+tests/test_preprocessing.py:188: AttributeError
+_________________ TestPIIRemoval.test_pii_removal_large_files __________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_pii_removal_large_files>
+
+    def test_pii_removal_large_files(self):
+        """Test PII removal performance with large files"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            large_file = os.path.join(temp_dir, "large_test.py")
+    
+            # Create large file with scattered PII
+            lines = []
+            for i in range(1000):
+                if i % 100 == 0:
+                    lines.append(f"# Contact: user{i}@example.com")
+                else:
+                    lines.append(f"# Line {i}: regular code comment")
+    
+            with open(large_file, 'w') as f:
+                f.write('\n'.join(lines))
+    
+            # Measure performance
+            start_time = datetime.now()
+>           success, stats = self.pii_remover.remove_pii_from_file(large_file)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'PIIRemover' object has no attribute 'remove_pii_from_file'. Did you mean: 'remove_pii_from_text'?
+
+tests/test_preprocessing.py:287: AttributeError
+_________________ TestPIIRemoval.test_pii_statistics_accuracy __________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_pii_statistics_accuracy>
+
+    def test_pii_statistics_accuracy(self):
+        """Test accuracy of PII detection statistics"""
+        text = """
+        Multiple PII types:
+        - Email: user1@test.com and user2@test.org
+        - Tokens: ghp_abc123def456ghi789 and ghp_xyz987uvw654rst321
+        - IP: 192.168.1.1 and 10.0.0.1
+        """
+    
+        cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+    
+        # Verify counts match expected
+        self.assertEqual(stats.get('emails', 0), 2)
+>       self.assertEqual(stats.get('github_tokens', 0), 2)
+E       AssertionError: 0 != 2
+
+tests/test_preprocessing.py:229: AssertionError
+_______________________ TestPIIRemoval.test_ssn_removal ________________________
+
+self = <tests.test_preprocessing.TestPIIRemoval testMethod=test_ssn_removal>
+
+    def test_ssn_removal(self):
+        """Test Social Security Number detection and removal"""
+        test_cases = [
+            "SSN: 123-45-6789",
+            "Social Security: 987654321",
+            "ID: 123456789"
+        ]
+    
+        for text in test_cases:
+            cleaned, stats = self.pii_remover.remove_pii_from_text(text)
+            # Should remove or redact SSN patterns
+            import re
+            ssn_pattern = r'\b\d{3}-?\d{2}-?\d{4}\b'
+            remaining_ssns = re.findall(ssn_pattern, cleaned)
+>           self.assertEqual(len(remaining_ssns), 0)
+E           AssertionError: 1 != 0
+
+tests/test_preprocessing.py:152: AssertionError
+________________ TestCodeDeduplication.test_batch_deduplication ________________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_batch_deduplication>
+
+    def test_batch_deduplication(self):
+        """Test deduplication of multiple files"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            files = []
+            contents = [
+                "print('File 1')",  # Unique
+                "print('File 2')",  # Unique
+                "print('File 1')",  # Duplicate of first
+                "print('Different content')",  # Unique
+                "print('File 2')",  # Duplicate of second
+            ]
+    
+            for i, content in enumerate(contents):
+                filepath = os.path.join(temp_dir, f"file{i}.py")
+                with open(filepath, 'w') as f:
+                    f.write(content)
+                files.append(filepath)
+    
+>           duplicates = self.deduplicator.find_duplicates(files)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'find_duplicates'. Did you mean: 'find_near_duplicates'?
+
+tests/test_preprocessing.py:495: AttributeError
+_________________ TestCodeDeduplication.test_comment_handling __________________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_comment_handling>
+
+        def test_comment_handling(self):
+            """Test handling of comments in similarity calculation"""
+            content1 = """
+    def process_data(data):
+        # This processes the data
+        result = data * 2
+        return result
+    """
+    
+            content2 = """
+    def process_data(data):
+        # This function processes the input data
+        result = data * 2
+        return result
+    """
+    
+>           similarity = self.deduplicator.calculate_similarity(content1, content2)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'calculate_similarity'. Did you mean: '_calculate_similarity'?
+
+tests/test_preprocessing.py:409: AttributeError
+_____________ TestCodeDeduplication.test_deduplication_statistics ______________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_deduplication_statistics>
+
+    def test_deduplication_statistics(self):
+        """Test deduplication statistics reporting"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create mix of unique and duplicate files
+            files = []
+            for i in range(10):
+                filepath = os.path.join(temp_dir, f"file{i}.py")
+                # Create some duplicates
+                content = f"print('Content {i % 5}')"  # 5 unique contents, duplicated
+                with open(filepath, 'w') as f:
+                    f.write(content)
+                files.append(filepath)
+    
+>           duplicates = self.deduplicator.find_duplicates(files)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'find_duplicates'. Did you mean: 'find_near_duplicates'?
+
+tests/test_preprocessing.py:553: AttributeError
+_________ TestCodeDeduplication.test_different_content_not_duplicates __________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_different_content_not_duplicates>
+
+        def test_different_content_not_duplicates(self):
+            """Test that different content is not flagged as duplicates"""
+            content1 = """
+    def fibonacci(n):
+        if n <= 1:
+            return n
+        return fibonacci(n-1) + fibonacci(n-2)
+    """
+    
+            content2 = """
+    def factorial(n):
+        if n <= 1:
+            return 1
+        return n * factorial(n-1)
+    """
+    
+>           similarity = self.deduplicator.calculate_similarity(content1, content2)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'calculate_similarity'. Did you mean: '_calculate_similarity'?
+
+tests/test_preprocessing.py:381: AttributeError
+________________ TestCodeDeduplication.test_empty_file_handling ________________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_empty_file_handling>
+
+    def test_empty_file_handling(self):
+        """Test handling of empty files"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            empty1 = os.path.join(temp_dir, "empty1.py")
+            empty2 = os.path.join(temp_dir, "empty2.py")
+            non_empty = os.path.join(temp_dir, "nonempty.py")
+    
+            # Create empty files
+            Path(empty1).touch()
+            Path(empty2).touch()
+    
+            # Create non-empty file
+            with open(non_empty, 'w') as f:
+                f.write("print('hello')")
+    
+>           duplicates = self.deduplicator.find_duplicates([empty1, empty2, non_empty])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'find_duplicates'. Did you mean: 'find_near_duplicates'?
+
+tests/test_preprocessing.py:534: AttributeError
+________________ TestCodeDeduplication.test_encoding_robustness ________________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_encoding_robustness>
+
+    def test_encoding_robustness(self):
+        """Test deduplication with different encodings"""
+        content = "# Test with unicode: café, naïve, résumé"
+    
+        with tempfile.TemporaryDirectory() as temp_dir:
+            utf8_file = os.path.join(temp_dir, "utf8.py")
+            latin1_file = os.path.join(temp_dir, "latin1.py")
+    
+            # Write same content in different encodings
+            with open(utf8_file, 'w', encoding='utf-8') as f:
+                f.write(content)
+    
+            # For this test, we'll use utf-8 for both since latin-1 might not support all chars
+            with open(latin1_file, 'w', encoding='utf-8') as f:
+                f.write(content)
+    
+>           duplicates = self.deduplicator.find_duplicates([utf8_file, latin1_file])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'find_duplicates'. Did you mean: 'find_near_duplicates'?
+
+tests/test_preprocessing.py:516: AttributeError
+_____________ TestCodeDeduplication.test_exact_duplicate_detection _____________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_exact_duplicate_detection>
+
+    def test_exact_duplicate_detection(self):
+        """Test detection of exact duplicate files"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create identical files
+            content = "print('Hello, World!')\nprint('This is a test')"
+    
+            file1 = os.path.join(temp_dir, "file1.py")
+            file2 = os.path.join(temp_dir, "file2.py")
+    
+            with open(file1, 'w') as f:
+                f.write(content)
+            with open(file2, 'w') as f:
+                f.write(content)
+    
+>           duplicates = self.deduplicator.find_duplicates([file1, file2])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'find_duplicates'. Did you mean: 'find_near_duplicates'?
+
+tests/test_preprocessing.py:335: AttributeError
+_____________ TestCodeDeduplication.test_incremental_deduplication _____________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_incremental_deduplication>
+
+    def test_incremental_deduplication(self):
+        """Test incremental deduplication for streaming scenarios"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            existing_files = []
+    
+            # Create initial set of files
+            for i in range(3):
+                filepath = os.path.join(temp_dir, f"existing{i}.py")
+                with open(filepath, 'w') as f:
+                    f.write(f"print('Existing {i}')")
+                existing_files.append(filepath)
+    
+            # Initialize deduplicator with existing files
+>           self.deduplicator.initialize_with_existing(existing_files)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'initialize_with_existing'
+
+tests/test_preprocessing.py:596: AttributeError
+_____________ TestCodeDeduplication.test_large_file_deduplication ______________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_large_file_deduplication>
+
+    def test_large_file_deduplication(self):
+        """Test deduplication performance with large files"""
+        # Generate large similar content
+        base_content = "def function_{i}():\n    return {i}\n\n"
+        content1 = "".join([base_content.format(i=i) for i in range(100)])
+        content2 = "".join([base_content.format(i=i) for i in range(100)])  # Identical
+    
+        with tempfile.TemporaryDirectory() as temp_dir:
+            file1 = os.path.join(temp_dir, "large1.py")
+            file2 = os.path.join(temp_dir, "large2.py")
+    
+            with open(file1, 'w') as f:
+                f.write(content1)
+            with open(file2, 'w') as f:
+                f.write(content2)
+    
+            start_time = datetime.now()
+>           duplicates = self.deduplicator.find_duplicates([file1, file2])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'find_duplicates'. Did you mean: 'find_near_duplicates'?
+
+tests/test_preprocessing.py:440: AttributeError
+________________ TestCodeDeduplication.test_minhash_consistency ________________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_minhash_consistency>
+
+    def test_minhash_consistency(self):
+        """Test MinHash signature consistency"""
+        content = "def test(): return 42"
+    
+        # Generate signature multiple times
+>       sig1 = self.deduplicator._generate_minhash_signature(content)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CodeDeduplicator' object has no attribute '_generate_minhash_signature'
+
+tests/test_preprocessing.py:417: AttributeError
+_____________ TestCodeDeduplication.test_near_duplicate_detection ______________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_near_duplicate_detection>
+
+        def test_near_duplicate_detection(self):
+            """Test detection of near-duplicate files (high similarity)"""
+            content1 = """
+    def calculate_sum(a, b):
+        '''Calculate the sum of two numbers'''
+        return a + b
+    
+    if __name__ == "__main__":
+        result = calculate_sum(5, 3)
+        print(f"Result: {result}")
+    """
+    
+            content2 = """
+    def calculate_sum(x, y):
+        '''Calculate the sum of two numbers'''
+        return x + y
+    
+    if __name__ == "__main__":
+        result = calculate_sum(5, 3)
+        print(f"Sum: {result}")
+    """
+    
+>           similarity = self.deduplicator.calculate_similarity(content1, content2)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'CodeDeduplicator' object has no attribute 'calculate_similarity'. Did you mean: '_calculate_similarity'?
+
+tests/test_preprocessing.py:362: AttributeError
+___________ TestCodeDeduplication.test_similarity_matrix_generation ____________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_similarity_matrix_generation>
+
+    def test_similarity_matrix_generation(self):
+        """Test generation of similarity matrix for files"""
+        contents = [
+            "def func1(): pass",
+            "def func1(): pass",  # Identical
+            "def func2(): pass",  # Similar structure
+            "class MyClass: pass"  # Different
+        ]
+    
+>       similarity_matrix = self.deduplicator.generate_similarity_matrix(contents)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CodeDeduplicator' object has no attribute 'generate_similarity_matrix'
+
+tests/test_preprocessing.py:569: AttributeError
+________ TestCodeDeduplication.test_similarity_threshold_configuration _________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_similarity_threshold_configuration>
+
+    def test_similarity_threshold_configuration(self):
+        """Test configurable similarity threshold"""
+        content1 = "def test(): return 1"
+        content2 = "def test(): return 2"  # Similar but different
+    
+        # High threshold deduplicator
+        high_threshold_dedup = CodeDeduplicator(similarity_threshold=0.95)
+    
+        # Low threshold deduplicator
+        low_threshold_dedup = CodeDeduplicator(similarity_threshold=0.50)
+    
+>       similarity = high_threshold_dedup.calculate_similarity(content1, content2)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CodeDeduplicator' object has no attribute 'calculate_similarity'. Did you mean: '_calculate_similarity'?
+
+tests/test_preprocessing.py:457: AttributeError
+_____________ TestCodeDeduplication.test_whitespace_normalization ______________
+
+self = <tests.test_preprocessing.TestCodeDeduplication testMethod=test_whitespace_normalization>
+
+    def test_whitespace_normalization(self):
+        """Test that whitespace differences are normalized"""
+        content1 = "def hello():\n    print('hello')\n    return True"
+        content2 = "def hello():\n        print('hello')\n        return True"  # Different indentation
+    
+        # Should still detect as similar after normalization
+>       similarity = self.deduplicator.calculate_similarity(content1, content2)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'CodeDeduplicator' object has no attribute 'calculate_similarity'. Did you mean: '_calculate_similarity'?
+
+tests/test_preprocessing.py:390: AttributeError
+______________ TestPreprocessingPipeline.test_process_single_file ______________
+
+self = <tests.test_preprocessing.TestPreprocessingPipeline testMethod=test_process_single_file>
+
+    def test_process_single_file(self):
+        """Test single file processing"""
+        input_file = self.temp_path / "input.py"
+        output_file = self.temp_path / "output.py"
+    
+        # Create test file with various issues
+        test_content = '''
+        # API key in comment
+        API_KEY = "sk-test123456789abcdef"
+        email = "developer@company.com"
+    
+        def hello():
+            print("world")
+        '''
+    
+        with open(input_file, 'w', encoding='utf-8') as f:
+            f.write(test_content)
+    
+        result = self.pipeline.process_single_file(
+            input_file, output_file, 'python', self.pipeline.config['stages']
+        )
+    
+        self.assertTrue(result['success'])
+        self.assertGreater(len(result['stages_applied']), 0)
+        self.assertTrue(output_file.exists())
+    
+        # Check that PII was removed
+        with open(output_file, 'r') as f:
+            processed_content = f.read()
+    
+>       self.assertNotIn("sk-test123456789abcdef", processed_content)
+E       AssertionError: 'sk-test123456789abcdef' unexpectedly found in '\n        # API key in comment\n        API_KEY = "sk-test123456789abcdef"\n        email = "user@example.com"\n\n        def hello():\n            print("world")\n'
+
+tests/test_preprocessing.py:1259: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO - Loading tokenizer: microsoft/codebert-base
+INFO - Tokenizer loaded successfully
+------------------------------ Captured log call -------------------------------
+INFO     preprocessing:preprocessing.py:146 Loading tokenizer: microsoft/codebert-base
+INFO     preprocessing:preprocessing.py:148 Tokenizer loaded successfully
+________________ TestIntegration.test_full_pipeline_integration ________________
+
+self = <tests.test_preprocessing.TestIntegration testMethod=test_full_pipeline_integration>
+
+    def test_full_pipeline_integration(self):
+        """Test the complete pipeline with realistic data"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+    
+            # Create input structure matching Task 1 output
+            input_base = temp_path / "input"
+            output_base = temp_path / "output"
+    
+            python_input = input_base / "python"
+            python_input.mkdir(parents=True)
+    
+            # Create test files with various preprocessing needs
+            test_files = {
+                "repo1_file1.py": '''
+                    # Developer contact: dev@company.com
+                    API_KEY = "sk-1234567890abcdef"
+    
+                    def process_data(data):
+                        # TODO: implement processing
+                        return data.strip()
+                ''',
+                "repo2_file1.py": '''
+                    # Same content as repo1_file1.py (duplicate)
+                    API_KEY = "sk-1234567890abcdef"
+    
+                    def process_data(data):
+                        # TODO: implement processing
+                        return data.strip()
+                ''',
+                "repo3_utils.py": '''
+                    import requests
+    
+                    def make_request():
+                        headers = {"Authorization": "Bearer token123"}
+                        return requests.get("https://api.example.com/data")
+                '''
+            }
+    
+            for filename, content in test_files.items():
+                with open(python_input / filename, 'w') as f:
+                    f.write(content)
+    
+            # Create minimal config
+            config = {
+                'stages': {
+                    'encoding_fix': True,
+                    'malformed_cleaning': True,
+                    'pii_removal': True,
+                    'deduplication': True,
+                    'tokenization': False,  # Skip for integration test
+                    'whitespace_cleanup': True
+                },
+                'parallel_processing': False,
+                'supported_languages': ['python']
+            }
+    
+            config_path = temp_path / "config.yaml"
+            with open(config_path, 'w') as f:
+                yaml.dump(config, f)
+    
+            # Run pipeline
+            pipeline = PreprocessingPipeline(config_path=config_path)
+            results = pipeline.run_pipeline(input_base, output_base)
+    
+            # Check results
+            self.assertIn('language_results', results)
+            self.assertIn('python', results['language_results'])
+    
+            python_results = results['language_results']['python']
+            self.assertEqual(python_results['input_files'], 3)
+    
+            # Should have removed duplicates
+>           self.assertLess(python_results['processed_files'], 3)
+E           AssertionError: 3 not less than 3
+
+tests/test_preprocessing.py:1377: AssertionError
+----------------------------- Captured stderr call -----------------------------
+INFO - Loading tokenizer: microsoft/codebert-base
+INFO - Tokenizer loaded successfully
+INFO - ======================================================================
+INFO - Starting Data Preprocessing Pipeline
+INFO - ======================================================================
+INFO - Input directory: /tmp/tmpn47j38ek/input
+INFO - Output directory: /tmp/tmpn47j38ek/output
+INFO - Processing python files from /tmp/tmpn47j38ek/input/python
+INFO - Found 3 python files to process
+INFO - Starting deduplication for python
+INFO - Deduplication complete for python: 1 duplicates removed
+INFO - Completed python: 3/3 files processed successfully
+INFO - ======================================================================
+INFO - Preprocessing Pipeline Complete
+INFO - Total files processed: 3
+INFO - Total files output: 3
+INFO - PII items removed: 3
+INFO - Duplicates removed: 1
+INFO - Processing time: 0.0 seconds
+INFO - Results saved to: /tmp/tmpn47j38ek/preprocessing_results.json
+INFO - ======================================================================
+------------------------------ Captured log call -------------------------------
+INFO     preprocessing:preprocessing.py:146 Loading tokenizer: microsoft/codebert-base
+INFO     preprocessing:preprocessing.py:148 Tokenizer loaded successfully
+INFO     preprocessing:preprocessing.py:560 ======================================================================
+INFO     preprocessing:preprocessing.py:561 Starting Data Preprocessing Pipeline
+INFO     preprocessing:preprocessing.py:562 ======================================================================
+INFO     preprocessing:preprocessing.py:563 Input directory: /tmp/tmpn47j38ek/input
+INFO     preprocessing:preprocessing.py:564 Output directory: /tmp/tmpn47j38ek/output
+INFO     preprocessing:preprocessing.py:446 Processing python files from /tmp/tmpn47j38ek/input/python
+INFO     preprocessing:preprocessing.py:452 Found 3 python files to process
+INFO     preprocessing:preprocessing.py:498 Starting deduplication for python
+INFO     preprocessing:preprocessing.py:521 Deduplication complete for python: 1 duplicates removed
+INFO     preprocessing:preprocessing.py:543 Completed python: 3/3 files processed successfully
+INFO     preprocessing:preprocessing.py:612 ======================================================================
+INFO     preprocessing:preprocessing.py:613 Preprocessing Pipeline Complete
+INFO     preprocessing:preprocessing.py:614 Total files processed: 3
+INFO     preprocessing:preprocessing.py:615 Total files output: 3
+INFO     preprocessing:preprocessing.py:616 PII items removed: 3
+INFO     preprocessing:preprocessing.py:617 Duplicates removed: 1
+INFO     preprocessing:preprocessing.py:618 Processing time: 0.0 seconds
+INFO     preprocessing:preprocessing.py:619 Results saved to: /tmp/tmpn47j38ek/preprocessing_results.json
+INFO     preprocessing:preprocessing.py:620 ======================================================================
+=============================== warnings summary ===============================
+tests/bias/test_bias_detection.py:47
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/bias/test_bias_detection.py:47: PytestUnknownMarkWarning: Unknown pytest.mark.bias - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.bias
+
+tests/bias/test_bias_detection.py:398
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/bias/test_bias_detection.py:398: PytestUnknownMarkWarning: Unknown pytest.mark.bias - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.bias
+
+tests/integration/test_pipeline_integration.py:50
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/integration/test_pipeline_integration.py:50: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests/performance/test_performance.py:37
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/performance/test_performance.py:37: PytestUnknownMarkWarning: Unknown pytest.mark.performance - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.performance
+
+tests/test_Acquisition.py:42
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/test_Acquisition.py:42: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.unit
+
+tests/test_preprocessing.py:54
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/test_preprocessing.py:54: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.unit
+
+tests/test_preprocessing.py:314
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/test_preprocessing.py:314: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.unit
+
+tests/test_preprocessing.py:607
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/test_preprocessing.py:607: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.unit
+
+tests/test_dataset_filter.py::test_organize_and_filter_basic
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/../scripts/dataset_filter.py:167: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "start_time": datetime.utcnow().isoformat() + "Z",
+
+tests/test_dataset_filter.py::test_organize_and_filter_basic
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/../scripts/dataset_filter.py:238: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    manifest["end_time"] = datetime.utcnow().isoformat() + "Z"
+
+tests/test_dataset_filter.py::test_organize_and_filter_basic
+  /mnt/d/Prithi_project/MLOps_LoRA_CodeGen/Data-Pipeline/tests/../scripts/dataset_filter.py:135: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    f"dataset_filter_last_run_timestamp {int(datetime.utcnow().timestamp())}",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_language_distribution
+FAILED tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_complexity_bias
+FAILED tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_license_fairness
+FAILED tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_fairness_metrics
+FAILED tests/anomaly/test_bias_analysis.py::TestBiasAnalysis::test_complexity_thresholds
+FAILED tests/bias/test_bias_detection.py::TestBiasDetection::test_code_complexity_bias_detection
+FAILED tests/bias/test_bias_detection.py::TestBiasDetection::test_comprehensive_bias_report_generation
+FAILED tests/bias/test_bias_detection.py::TestFairnessValidation::test_demographic_parity_validation
+FAILED tests/integration/test_pipeline_integration.py::TestPipelineIntegration::test_full_pipeline_execution
+FAILED tests/integration/test_pipeline_integration.py::TestPipelineIntegration::test_data_consistency
+FAILED tests/performance/test_performance.py::TestPipelinePerformance::test_small_dataset_performance
+FAILED tests/performance/test_performance.py::TestPipelinePerformance::test_cpu_utilization_efficiency
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_languages_configured
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_data_acquisition_initialization
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_huggingface_filter_initialization
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_metadata_filtering_stars
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_metadata_filtering_language
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_sha256_validation
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_sha256_validation_failure
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_aws_s3_integration
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_file_size_filtering
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_language_classification
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_duplicate_url_handling
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_download_error_handling
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_output_directories_exist
+FAILED tests/test_Acquisition.py::TestDataAcquisition::test_metadata_files_exist
+FAILED tests/test_Acquisition.py::TestRequirements::test_required_packages_in_requirements
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_api_key_removal - As...
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_credit_card_removal
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_email_removal_multiple_formats
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_github_token_removal
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_ip_address_removal
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_phone_number_removal
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_concurrent_safety
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_encoding_handling
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_file_operations
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_pii_removal_large_files
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_pii_statistics_accuracy
+FAILED tests/test_preprocessing.py::TestPIIRemoval::test_ssn_removal - Assert...
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_batch_deduplication
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_comment_handling
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_deduplication_statistics
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_different_content_not_duplicates
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_empty_file_handling
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_encoding_robustness
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_exact_duplicate_detection
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_incremental_deduplication
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_large_file_deduplication
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_minhash_consistency
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_near_duplicate_detection
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_similarity_matrix_generation
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_similarity_threshold_configuration
+FAILED tests/test_preprocessing.py::TestCodeDeduplication::test_whitespace_normalization
+FAILED tests/test_preprocessing.py::TestPreprocessingPipeline::test_process_single_file
+FAILED tests/test_preprocessing.py::TestIntegration::test_full_pipeline_integration
+ERROR tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_file_size_anomalies
+ERROR tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_complexity_anomalies
+ERROR tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_duplicate_detection
+ERROR tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_statistical_anomalies
+ERROR tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_pii_pattern_detection
+ERROR tests/anomaly/test_data_quality.py::TestAnomalyDetection::test_language_distribution_bias
+ERROR tests/unit/test_acquisition.py::TestDataAcquisition::test_aws_credentials_validation
+ERROR tests/unit/test_acquisition.py::TestDataAcquisition::test_download_dataset
+ERROR tests/unit/test_acquisition.py::TestDataAcquisition::test_metadata_validation
+ERROR tests/unit/test_acquisition.py::TestDataAcquisition::test_file_size_validation
+ERROR tests/unit/test_acquisition.py::TestDataAcquisition::test_sha256_verification
+ERROR tests/unit/test_acquisition.py::TestDataAcquisition::test_error_handling
+= 55 failed, 51 passed, 1 skipped, 11 warnings, 12 errors in 379.14s (0:06:19) =

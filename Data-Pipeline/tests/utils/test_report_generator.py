@@ -7,7 +7,7 @@ from typing import Dict, Any, List
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-class TestReportGenerator:
+class QAReportGenerator:
     """Generate comprehensive test reports with visualizations."""
     
     def __init__(self, output_dir: Path):
