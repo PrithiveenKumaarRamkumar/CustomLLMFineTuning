@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from scripts.anomaly_detection import AnomalyDetector
+from scripts.anomaly_detection import PipelineAnomalyDetector
 from scripts.logger_config import setup_logger
 
 logger = setup_logger(__name__)
@@ -8,7 +8,7 @@ logger = setup_logger(__name__)
 class TestAnomalyDetection:
     @pytest.fixture(autouse=True)
     def setup(self, test_config):
-        self.anomaly_detector = AnomalyDetector(
+        self.anomaly_detector = PipelineAnomalyDetector(
             thresholds=test_config["thresholds"]
         )
     
