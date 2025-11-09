@@ -5,6 +5,7 @@
 This document provides comprehensive documentation for the testing infrastructure implemented for the MLOps Data Pipeline. The framework includes comprehensive unit tests, integration tests, performance testing, bias analysis, anomaly detection, and automated quality gates with detailed reporting.
 
 ## 📋 Implementation Summary
+[Quality Gates](assets/TestInfraQualityGates.png)
 
 ### ✅ Completed Components
 
