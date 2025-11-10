@@ -17,7 +17,8 @@ class TestAnomalyDetection:
         test_sizes = [1000, 5000, 15_000_000, 2000, 3000]
         anomalies = self.anomaly_detector.detect_file_size_anomalies(test_sizes)
         assert len(anomalies) == 1
-        assert anomalies[0] == 2  # Index of the oversized file
+        assert anomalies[0].anomaly_type == 'file_size'
+        assert anomalies[0].value == 15_000_000  # The oversized file
     
     def test_complexity_anomalies(self):
         """Test code complexity anomaly detection"""
@@ -30,7 +31,7 @@ class TestAnomalyDetection:
             test_complexities
         )
         assert len(anomalies) == 1
-        assert "file2.py" in anomalies
+        assert "file2.py" in anomalies[0].description
     
     def test_duplicate_detection(self, sample_code_data):
         """Test duplicate code detection"""

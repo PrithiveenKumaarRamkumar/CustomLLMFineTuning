@@ -1,0 +1,22 @@
+[
+  {
+    "blob_id": "abc123def456",
+    "repo_name": "example/python-repo1",
+    "path": "src/main.py",
+    "language": "python",
+    "src_encoding": "utf-8",
+    "stars": 150,
+    "file_size": 2048,
+    "license": "MIT"
+  },
+  {
+    "blob_id": "def789ghi012",
+    "repo_name": "example/python-repo2", 
+    "path": "lib/utils.py",
+    "language": "python",
+    "src_encoding": "utf-8",
+    "stars": 300,
+    "file_size": 4096,
+    "license": "Apache-2.0"
+  }
+]

@@ -304,6 +304,7 @@ docker-compose -f docker-compose.airflow.yml ps
 - Click play button to trigger manually
 
 #### Airflow DAG Structure
+![Airflow Implementation](assets/DAGPipeline.png)
 
 The DAG (`dags/data_pipeline_dag.py`) orchestrates all DVC stages:
 

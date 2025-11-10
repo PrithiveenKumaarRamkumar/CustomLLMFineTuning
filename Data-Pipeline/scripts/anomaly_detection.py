@@ -397,8 +397,12 @@ class BehavioralAnomalyDetector:
 class PipelineAnomalyDetector:
     """Main anomaly detection orchestrator for the data pipeline."""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None, thresholds: Optional[Dict[str, Any]] = None):
+        # Merge thresholds into config if provided
         self.config = config or self._default_config()
+        if thresholds:
+            self.config.update(thresholds)
+            
         self.statistical_detector = StatisticalAnomalyDetector(
             sigma_threshold=self.config['statistical_threshold']
         )
@@ -676,6 +680,246 @@ class PipelineAnomalyDetector:
                 'cpu_usage': cpu_usage
             },
             'duplicate_rate': duplicate_rate
+        }
+    
+    def detect_file_size_anomalies(self, file_sizes: List[int]) -> List[AnomalyResult]:
+        """
+        Detect file size anomalies.
+        
+        Args:
+            file_sizes: List of file sizes in bytes
+            
+        Returns:
+            List of anomaly results
+        """
+        anomalies = []
+        
+        for i, size in enumerate(file_sizes):
+            if size < self.config['file_size_min']:
+                anomalies.append(AnomalyResult(
+                    anomaly_type='file_size',
+                    severity='medium',
+                    description=f'File {i} is too small: {size} bytes (min: {self.config["file_size_min"]})',
+                    value=size,
+                    threshold=self.config['file_size_min'],
+                    timestamp=datetime.now()
+                ))
+            elif size > self.config['file_size_max']:
+                anomalies.append(AnomalyResult(
+                    anomaly_type='file_size',
+                    severity='high',
+                    description=f'File {i} is too large: {size} bytes (max: {self.config["file_size_max"]})',
+                    value=size,
+                    threshold=self.config['file_size_max'],
+                    timestamp=datetime.now()
+                ))
+        
+        return anomalies
+    
+    def detect_complexity_anomalies(self, complexities: Dict[str, float]) -> List[AnomalyResult]:
+        """
+        Detect code complexity anomalies.
+        
+        Args:
+            complexities: Dictionary mapping filenames to complexity scores
+            
+        Returns:
+            List of anomaly results
+        """
+        anomalies = []
+        
+        if not complexities:
+            return anomalies
+            
+        values = list(complexities.values())
+        mean_complexity = np.mean(values)
+        std_complexity = np.std(values)
+        threshold = mean_complexity + 1.0 * std_complexity  # 1.0 sigma threshold (more sensitive)
+        
+        for filename, complexity in complexities.items():
+            if complexity > threshold:
+                anomalies.append(AnomalyResult(
+                    anomaly_type='code_complexity',
+                    severity='medium' if complexity < threshold * 1.5 else 'high',
+                    description=f'High complexity detected in {filename}: {complexity:.2f} (threshold: {threshold:.2f})',
+                    value=complexity,
+                    threshold=threshold,
+                    timestamp=datetime.now()
+                ))
+        
+        return anomalies
+    
+    def analyze_language_bias(self, language_distribution: Dict[str, int]) -> Dict[str, Any]:
+        """
+        Analyze programming language distribution for bias.
+        
+        Args:
+            language_distribution: Dictionary mapping language names to counts
+            
+        Returns:
+            Dictionary with bias analysis results
+        """
+        if not language_distribution:
+            return {
+                'has_significant_bias': False,
+                'recommendations': [],
+                'distribution_analysis': {}
+            }
+        
+        total = sum(language_distribution.values())
+        proportions = {lang: count / total for lang, count in language_distribution.items()}
+        
+        # Define expected proportions (rough industry standards)
+        expected_proportions = {
+            'python': 0.40,
+            'javascript': 0.15,
+            'java': 0.25,
+            'c++': 0.15,
+            'cpp': 0.15,
+            'c': 0.05,
+            'go': 0.03,
+            'rust': 0.02
+        }
+        
+        recommendations = []
+        significant_deviations = []
+        
+        # Check for significant deviations
+        for lang, actual_prop in proportions.items():
+            expected_prop = expected_proportions.get(lang.lower(), 0.01)  # Default for unknown languages
+            
+            # Calculate deviation ratio
+            if expected_prop > 0:
+                deviation = abs(actual_prop - expected_prop) / expected_prop
+                
+                if deviation > 1.0:  # More than 100% deviation
+                    significant_deviations.append({
+                        'language': lang,
+                        'actual_proportion': actual_prop,
+                        'expected_proportion': expected_prop,
+                        'deviation': deviation
+                    })
+                    
+                    if deviation > 2.0:
+                        recommendations.append(f"Consider balancing {lang} representation (currently {actual_prop:.1%}, expected ~{expected_prop:.1%})")
+        
+        return {
+            'has_significant_bias': len(significant_deviations) > 0,
+            'recommendations': recommendations,
+            'distribution_analysis': {
+                'proportions': proportions,
+                'deviations': significant_deviations,
+                'total_languages': len(language_distribution)
+            }
+        }
+    
+    def detect_duplicates(self, file_contents: Dict[str, str]) -> List[tuple]:
+        """
+        Detect duplicate content between files.
+        
+        Args:
+            file_contents: Dictionary mapping file paths to their content
+            
+        Returns:
+            List of tuples representing duplicate file pairs
+        """
+        duplicates = []
+        
+        file_list = list(file_contents.items())
+        for i in range(len(file_list)):
+            for j in range(i + 1, len(file_list)):
+                file1_path, content1 = file_list[i]
+                file2_path, content2 = file_list[j]
+                
+                # Simple content comparison
+                if content1.strip() == content2.strip():
+                    duplicates.append((file1_path, file2_path))
+        
+        return duplicates
+    
+    def detect_statistical_anomalies(self, data: np.ndarray, threshold: float = 3.0) -> List[AnomalyResult]:
+        """
+        Detect statistical anomalies using z-score method.
+        
+        Args:
+            data: Numpy array of data points
+            threshold: Z-score threshold for anomaly detection
+            
+        Returns:
+            List of anomaly results
+        """
+        anomalies = []
+        
+        if len(data) < 2:
+            return anomalies
+        
+        mean = np.mean(data)
+        std = np.std(data)
+        
+        if std == 0:
+            return anomalies
+        
+        z_scores = np.abs((data - mean) / std)
+        outlier_indices = np.where(z_scores > threshold)[0]
+        
+        for idx in outlier_indices:
+            severity = 'critical' if z_scores[idx] > 5.0 else 'high'
+            anomalies.append(AnomalyResult(
+                anomaly_type='statistical_outlier',
+                severity=severity,
+                description=f'Statistical outlier detected: value {data[idx]:.2f} with z-score {z_scores[idx]:.2f}',
+                value=data[idx],
+                threshold=threshold,
+                timestamp=datetime.now(),
+                metadata={
+                    'z_score': z_scores[idx],
+                    'mean': mean,
+                    'std': std
+                }
+            ))
+        
+        return anomalies
+    
+    def detect_pii_patterns(self, content: str) -> Dict[str, Any]:
+        """
+        Detect PII patterns in content.
+        
+        Args:
+            content: Text content to analyze
+            
+        Returns:
+            Dictionary with detected patterns and risk level
+        """
+        detected_patterns = []
+        pii_patterns = {
+            'email': r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
+            'api_key': r'(?i)(api[_-]?key|secret|token)["\'\s]*[:=]["\'\s]*[A-Za-z0-9_+-]+|sk_[A-Za-z0-9_+-]+',
+            'phone': r'(?:\+?1[-.\s]?)?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}',
+            'ssn': r'\b\d{3}-?\d{2}-?\d{4}\b',
+            'ip_address': r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
+        }
+        
+        for pattern_name, pattern in pii_patterns.items():
+            matches = re.findall(pattern, content)
+            if matches:
+                detected_patterns.extend([{
+                    'type': pattern_name,
+                    'match': match,
+                    'position': content.find(match) if isinstance(match, str) else content.find(match[0])
+                } for match in matches])
+        
+        # Determine risk level
+        if len(detected_patterns) >= 3:
+            risk_level = 'high'
+        elif len(detected_patterns) >= 1:
+            risk_level = 'medium'
+        else:
+            risk_level = 'low'
+        
+        return {
+            'detected_patterns': detected_patterns,
+            'risk_level': risk_level,
+            'pattern_count': len(detected_patterns)
         }
 
 # Example usage and testing functions

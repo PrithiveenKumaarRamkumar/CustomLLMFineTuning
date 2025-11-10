@@ -1,0 +1,59 @@
+# Dockerfile for TestEnv - Python 3.12.0 Environment for pytest
+# This Dockerfile replicates the testenv virtual environment for running pytest tests
+
+# Use Python 3.12.0 slim image as base (matches your local environment)
+FROM python:3.12.0-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
+WORKDIR /app/Data-Pipeline
+
+# Install system dependencies required for some Python packages
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements.txt first for better Docker layer caching
+COPY requirements.txt .
+
+# Create a virtual environment (replicating testenv)
+RUN python -m venv /opt/testenv
+
+# Activate virtual environment and upgrade pip
+RUN /opt/testenv/bin/pip install --upgrade pip setuptools wheel
+
+# Install Python dependencies in the virtual environment
+RUN /opt/testenv/bin/pip install -r requirements.txt
+
+# Copy the entire Data-Pipeline directory
+COPY . .
+
+# Set PATH to use the virtual environment
+ENV PATH="/opt/testenv/bin:$PATH"
+
+# Create necessary directories for test execution
+RUN mkdir -p tests/logs data/raw data/processed data/staged quality_reports
+
+# Set default command to run pytest
+CMD ["/opt/testenv/bin/python", "-m", "pytest", "tests/", "-v", "--tb=short"]
+
+# Health check to ensure the environment is ready
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /opt/testenv/bin/python -c "import pytest; import torch; import transformers; print('Environment ready')" || exit 1
+
+# Expose port for any potential web services (optional)
+EXPOSE 8000
+
+# Add labels for metadata
+LABEL maintainer="Data Pipeline Team" \
+      version="1.0" \
+      description="TestEnv Docker container for pytest execution" \
+      python.version="3.12.0"

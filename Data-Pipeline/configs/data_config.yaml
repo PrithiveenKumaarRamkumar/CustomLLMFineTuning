@@ -3,11 +3,11 @@
 #   name: "bigcode/the-stack-v2"
 #   streaming: true
   
-# languages:
-#   - python
-#   - java
-#   - cpp
-#   - javascript
+languages:
+  - python
+  - java
+  - cpp
+  - javascript
 
 # filters:
 #   min_stars: 10
@@ -35,10 +35,10 @@
 
 # Programming languages to download
 languages:
-  - Python
-  - Java
-  - C++
-  - JavaScript
+  - python
+  - java
+  - cpp
+  - javascript
 
 # Repository and file filtering criteria
 filters:
