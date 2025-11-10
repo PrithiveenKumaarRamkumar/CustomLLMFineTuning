@@ -36,7 +36,7 @@ try:
 except Exception:
     yaml = None
 
-from logger_config import setup_logger, get_log_filename
+from .logger_config import setup_logger, get_log_filename
 
 
 LANG_ALIAS = {

@@ -11,7 +11,11 @@ from scripts.bias_analysis import (
     LanguageRepresentationAnalyzer,
     PopularityBiasAnalyzer,
     CodeQualityBiasAnalyzer,
-    ComprehensiveBiasAnalyzer
+    ComprehensiveBiasAnalyzer,
+    analyze_language_distribution,
+    analyze_complexity_distribution,
+    analyze_license_distribution,
+    calculate_fairness_metrics
 )
 
 class TestBiasAnalysis:

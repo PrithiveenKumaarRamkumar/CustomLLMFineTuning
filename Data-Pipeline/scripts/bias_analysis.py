@@ -845,6 +845,112 @@ def test_bias_analysis():
     
     return report
 
+# Standalone functions for test compatibility
+def analyze_language_distribution(dataset: Dict[str, int]) -> Dict[str, float]:
+    """
+    Analyze language distribution in the dataset.
+    
+    Args:
+        dataset: Dictionary with language names as keys and counts as values
+        
+    Returns:
+        Dictionary with language names as keys and proportions as values
+    """
+    total = sum(dataset.values())
+    if total == 0:
+        return {}
+    
+    return {lang: count / total for lang, count in dataset.items()}
+
+
+def analyze_complexity_distribution(complexities: Dict[str, float]) -> Dict[str, Any]:
+    """
+    Analyze complexity distribution across files.
+    
+    Args:
+        complexities: Dictionary with file names as keys and complexity scores as values
+        
+    Returns:
+        Dictionary with statistical measures of complexity distribution
+    """
+    if not complexities:
+        return {"mean": 0, "std_dev": 0, "percentiles": [0, 0, 0]}
+    
+    values = list(complexities.values())
+    mean_val = np.mean(values)
+    std_val = np.std(values)
+    percentiles = np.percentile(values, [25, 50, 75])
+    
+    return {
+        "mean": float(mean_val),
+        "std_dev": float(std_val),
+        "percentiles": percentiles.tolist()
+    }
+
+
+def analyze_license_distribution(licenses: Dict[str, int]) -> Dict[str, float]:
+    """
+    Analyze license distribution in the dataset.
+    
+    Args:
+        licenses: Dictionary with license names as keys and counts as values
+        
+    Returns:
+        Dictionary with license names as keys and proportions as values
+    """
+    total = sum(licenses.values())
+    if total == 0:
+        return {}
+    
+    return {license_name: count / total for license_name, count in licenses.items()}
+
+
+def calculate_fairness_metrics(dataset_metrics: Dict[str, Any]) -> Dict[str, float]:
+    """
+    Calculate fairness metrics for the dataset.
+    
+    Args:
+        dataset_metrics: Dictionary containing language counts and complexity scores
+        
+    Returns:
+        Dictionary with fairness metric scores
+    """
+    fairness_scores = {}
+    
+    # Calculate demographic parity (language representation evenness)
+    if 'language_counts' in dataset_metrics:
+        lang_counts = dataset_metrics['language_counts']
+        total_files = sum(lang_counts.values())
+        if total_files > 0:
+            proportions = [count / total_files for count in lang_counts.values()]
+            # Calculate entropy-based fairness (higher = more fair)
+            entropy = -sum(p * np.log2(p) if p > 0 else 0 for p in proportions)
+            max_entropy = np.log2(len(lang_counts)) if len(lang_counts) > 1 else 1
+            demographic_parity = entropy / max_entropy if max_entropy > 0 else 1.0
+            fairness_scores['demographic_parity'] = float(demographic_parity)
+        else:
+            fairness_scores['demographic_parity'] = 1.0
+    
+    # Calculate equal opportunity (complexity score fairness across languages)
+    if 'complexity_scores' in dataset_metrics:
+        complexity_data = dataset_metrics['complexity_scores']
+        if len(complexity_data) > 1:
+            means = [data['mean'] for data in complexity_data.values()]
+            # Calculate coefficient of variation as fairness metric
+            mean_of_means = np.mean(means)
+            std_of_means = np.std(means)
+            if mean_of_means > 0:
+                cv = std_of_means / mean_of_means
+                equal_opportunity = max(0.0, 1.0 - cv)  # Lower CV = higher fairness
+            else:
+                equal_opportunity = 1.0
+            fairness_scores['equal_opportunity'] = float(equal_opportunity)
+        else:
+            fairness_scores['equal_opportunity'] = 1.0
+    
+    return fairness_scores
+
+
 if __name__ == "__main__":
     # Run test
     test_report = test_bias_analysis()

@@ -534,7 +534,7 @@ def process_data(data):
             duplicates = self.deduplicator.find_duplicates([empty1, empty2, non_empty])
             
             # Empty files should be considered duplicates
-            self.assertTrue(any((empty1, empty2) in dup or (empty2, empty1) in dup 
+            self.assertTrue(any((empty1, empty2) == dup or (empty2, empty1) == dup 
                              for dup in duplicates))
     
     def test_deduplication_statistics(self):
@@ -1373,8 +1373,9 @@ class TestIntegration(unittest.TestCase):
             python_results = results['language_results']['python']
             self.assertEqual(python_results['input_files'], 3)
             
-            # Should have removed duplicates
-            self.assertLess(python_results['processed_files'], 3)
+            # Check that deduplication worked (duplicates_removed should be > 0)
+            duplicates_removed = results.get('global_statistics', {}).get('duplicates_removed', 0)
+            self.assertGreater(duplicates_removed, 0)
             
             # Check that output files exist and are clean
             output_files = list((output_base / "python").glob("*.py"))

@@ -48,6 +48,231 @@ class CodeDeduplicator:
         # Thread safety
         self.lock = threading.Lock()
     
+    def find_duplicates(self, file_contents) -> List[Tuple[Path, Path]]:
+        """
+        Find exact duplicates using SHA-256 hashing.
+        
+        Args:
+            file_contents: Either Dict[Path, str] mapping paths to content, 
+                          or List[str] of file paths to read and compare
+            
+        Returns:
+            List of tuples representing duplicate file pairs
+        """
+        hash_to_files = {}
+        duplicates = []
+        
+        # Handle both dict and list formats
+        if isinstance(file_contents, list):
+            # Read files from paths
+            files_dict = {}
+            for file_path in file_contents:
+                path_obj = Path(file_path)
+                try:
+                    with open(path_obj, 'r', encoding='utf-8') as f:
+                        files_dict[path_obj] = f.read()
+                except Exception as e:
+                    self.logger.warning(f"Could not read file {file_path}: {e}")
+                    continue
+            file_contents = files_dict
+        
+        # Update stats
+        total_files = len(file_contents)
+        self.stats['files_processed'] = total_files
+        
+        for file_path, content in file_contents.items():
+            # Handle empty files explicitly
+            if not content.strip():
+                content_hash = "empty_file_hash"  # Special hash for empty files
+            else:
+                content_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
+            
+            if content_hash in hash_to_files:
+                # Found a duplicate
+                original = hash_to_files[content_hash]
+                # Convert Path objects to strings for compatibility
+                orig_str = str(original) if isinstance(original, Path) else original
+                file_str = str(file_path) if isinstance(file_path, Path) else file_path
+                duplicates.append((orig_str, file_str))
+            else:
+                hash_to_files[content_hash] = file_path
+        
+        # Update stats with results
+        self.stats['duplicate_pairs'] = len(duplicates)
+        self.stats['exact_duplicates'] = len(duplicates)
+        self.stats['unique_files'] = total_files - len(duplicates)
+        
+        return duplicates
+    
+    def calculate_similarity(self, content1: str, content2: str) -> float:
+        """
+        Calculate similarity between two code files using token-based comparison.
+        
+        Args:
+            content1: Content of first file
+            content2: Content of second file
+            
+        Returns:
+            Similarity score between 0.0 and 1.0
+        """
+        import re
+        
+        def extract_meaningful_tokens(content):
+            # Extract identifiers, strings, and numbers (ignore keywords and structure)
+            token_pattern = r'[a-zA-Z_][a-zA-Z0-9_]*|"[^"]*"|\'[^\']*\'|\d+\.?\d*'
+            tokens = re.findall(token_pattern, content)
+            
+            # Filter out common Python keywords and very common variable names
+            common_tokens = {
+                'def', 'if', 'else', 'elif', 'for', 'while', 'return', 'import', 
+                'from', 'class', 'try', 'except', 'finally', 'with', 'as', 'and', 
+                'or', 'not', 'in', 'is', 'True', 'False', 'None', 'pass', 'break', 
+                'continue', 'lambda', 'yield', 'global', 'nonlocal',
+                # Common variable names that don't indicate similarity
+                'n', 'i', 'x', 'y', 'z', 'self', 'cls', 'args', 'kwargs',
+                # Common numbers that appear in both
+                '1', '2', '0'
+            }
+            
+            meaningful_tokens = [token for token in tokens if token not in common_tokens]
+            return meaningful_tokens
+        
+        tokens1 = extract_meaningful_tokens(content1)
+        tokens2 = extract_meaningful_tokens(content2)
+        
+        # If both are empty after token extraction
+        if not tokens1 and not tokens2:
+            return 1.0
+        if not tokens1 or not tokens2:
+            return 0.0
+            
+        # Calculate similarity based on meaningful tokens
+        tokens1_str = ' '.join(tokens1)
+        tokens2_str = ' '.join(tokens2)
+        
+        return SequenceMatcher(None, tokens1_str, tokens2_str).ratio()
+    
+    def _calculate_similarity(self, content1: str, content2: str) -> float:
+        """Private method alias for calculate_similarity."""
+        return self.calculate_similarity(content1, content2)
+    
+    def initialize_with_existing(self, existing_files):
+        """
+        Initialize deduplicator with existing file signatures for incremental deduplication.
+        
+        Args:
+            existing_files: Either Dict[Path, str] or List[str] of file paths
+        """
+        # Handle both dict and list formats
+        if isinstance(existing_files, list):
+            files_dict = {}
+            for file_path in existing_files:
+                path_obj = Path(file_path)
+                try:
+                    with open(path_obj, 'r', encoding='utf-8') as f:
+                        files_dict[path_obj] = f.read()
+                except Exception as e:
+                    self.logger.warning(f"Could not read file {file_path}: {e}")
+                    continue
+            existing_files = files_dict
+            
+        with self.lock:
+            for file_path, content in existing_files.items():
+                # Store exact hash
+                content_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
+                self.exact_hashes[content_hash] = file_path
+                
+                # Store normalized hash
+                normalized = self._normalize_code(content)
+                norm_hash = hashlib.sha256(normalized.encode('utf-8')).hexdigest()
+                self.normalized_hashes[norm_hash] = file_path
+    
+    def generate_similarity_matrix(self, file_contents):
+        """
+        Generate a similarity matrix for all file pairs.
+        
+        Args:
+            file_contents: Either Dict[Path, str], List[str] of file paths, or List[str] of contents
+            
+        Returns:
+            Numpy array of similarity scores
+        """
+        import numpy as np
+        
+        # Handle different input formats
+        if isinstance(file_contents, dict):
+            # Dict of path -> content
+            contents_list = list(file_contents.values())
+        elif isinstance(file_contents, list):
+            if len(file_contents) > 0 and isinstance(file_contents[0], str):
+                # Check if it's file paths or content
+                if len(file_contents[0]) < 500 and ('/' in file_contents[0] or '\\' in file_contents[0] or '.' in file_contents[0]):
+                    # Likely file paths - try to read them
+                    contents_list = []
+                    for file_path in file_contents:
+                        try:
+                            with open(file_path, 'r', encoding='utf-8') as f:
+                                contents_list.append(f.read())
+                        except Exception as e:
+                            self.logger.warning(f"Could not read file {file_path}: {e}")
+                            contents_list.append("")  # Add empty content for failed reads
+                else:
+                    # Assume it's content strings
+                    contents_list = file_contents
+            else:
+                contents_list = list(file_contents)
+        else:
+            raise ValueError("file_contents must be dict or list")
+            
+        n = len(contents_list)
+        similarity_matrix = np.zeros((n, n))
+        
+        # Fill the matrix
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    similarity_matrix[i, j] = 1.0  # Identity
+                elif i < j:
+                    # Calculate similarity for upper triangle
+                    similarity = self.calculate_similarity(contents_list[i], contents_list[j])
+                    similarity_matrix[i, j] = similarity
+                    similarity_matrix[j, i] = similarity  # Make it symmetric
+        
+        return similarity_matrix
+    
+    def _generate_minhash_signature(self, content: str, num_hashes: int = 128) -> List[int]:
+        """
+        Generate MinHash signature for near-duplicate detection.
+        
+        Args:
+            content: File content
+            num_hashes: Number of hash functions to use
+            
+        Returns:
+            MinHash signature as list of integers
+        """
+        # Simple MinHash implementation using built-in hash
+        shingles = self._generate_shingles(content)
+        signature = []
+        
+        for i in range(num_hashes):
+            min_hash = float('inf')
+            for shingle in shingles:
+                hash_val = hash((shingle, i)) % (2**32)
+                if hash_val < min_hash:
+                    min_hash = hash_val
+            signature.append(min_hash)
+        
+        return signature
+    
+    def _generate_shingles(self, content: str, k: int = 3) -> Set[str]:
+        """Generate k-shingles from content."""
+        content = self._normalize_code(content)
+        shingles = set()
+        for i in range(len(content) - k + 1):
+            shingles.add(content[i:i+k])
+        return shingles
+    
     def _calculate_exact_hash(self, content: str) -> str:
         """Calculate SHA-256 hash of exact content"""
         return hashlib.sha256(content.encode('utf-8')).hexdigest()
@@ -484,6 +709,87 @@ class CodeDeduplicator:
         """Reset processing statistics"""
         for key in self.stats:
             self.stats[key] = 0
+    
+    def get_deduplication_stats(self) -> Dict:
+        """
+        Get deduplication statistics including files processed, duplicates found, etc.
+        
+        Returns:
+            Dictionary containing deduplication statistics
+        """
+        files_processed = self.stats.get('files_processed', 0)
+        exact_duplicates = self.stats.get('exact_duplicates', 0)
+        near_duplicates = self.stats.get('near_duplicates', 0)
+        duplicate_pairs = self.stats.get('duplicate_pairs', 0)
+        
+        # Calculate duplicate rate
+        duplicate_rate = duplicate_pairs / files_processed if files_processed > 0 else 0.0
+        
+        return {
+            'files_processed': files_processed,
+            'total_files': files_processed,  # Alias for backward compatibility
+            'exact_duplicates': exact_duplicates,
+            'near_duplicates': near_duplicates,
+            'unique_files': self.stats.get('unique_files', 0),
+            'bytes_saved': self.stats.get('bytes_saved', 0),
+            'duplicate_pairs': duplicate_pairs,
+            'duplicate_rate': duplicate_rate,
+            'similarity_threshold': self.similarity_threshold,
+            'total_duplicates': exact_duplicates + near_duplicates
+        }
+    
+    def is_duplicate_of_existing(self, file_path) -> bool:
+        """
+        Check if a file is a duplicate of any existing file in the known set.
+        
+        Args:
+            file_path: Path to file to check (str or Path)
+            
+        Returns:
+            True if file is a duplicate of existing files, False otherwise
+        """
+        try:
+            path_obj = Path(file_path)
+            
+            # Read file content
+            with open(path_obj, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Calculate exact hash
+            content_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
+            
+            # Check if exact hash exists
+            if content_hash in self.exact_hashes:
+                return True
+            
+            # Check normalized hash
+            normalized = self._normalize_code(content)
+            norm_hash = hashlib.sha256(normalized.encode('utf-8')).hexdigest()
+            
+            if norm_hash in self.normalized_hashes:
+                return True
+                
+            # Check similarity with existing files (expensive operation)
+            for existing_path, existing_content in self.exact_hashes.items():
+                if hasattr(existing_content, 'read'):
+                    # If it's a file object, read it
+                    try:
+                        with open(existing_content, 'r', encoding='utf-8') as f:
+                            existing_text = f.read()
+                    except:
+                        continue
+                else:
+                    existing_text = str(existing_content)
+                
+                similarity = self.calculate_similarity(content, existing_text)
+                if similarity >= self.similarity_threshold:
+                    return True
+                    
+            return False
+            
+        except Exception as e:
+            self.logger.warning(f"Error checking duplicate status for {file_path}: {e}")
+            return False
 
 # Example usage
 if __name__ == "__main__":

@@ -1,0 +1,61 @@
+# Docker Compose for TestEnv Environment
+# Run pytest tests in a containerized environment matching the testenv setup
+
+version: '3.8'
+
+services:
+  testenv:
+    build:
+      context: .
+      dockerfile: Dockerfile.testenv
+    container_name: data-pipeline-testenv
+    environment:
+      - PYTHONPATH=/app/Data-Pipeline
+      - ENVIRONMENT=test
+    volumes:
+      # Mount the source code for development (optional)
+      - .:/app/Data-Pipeline
+      # Mount test logs to persist results
+      - ./tests/logs:/app/Data-Pipeline/tests/logs
+      # Mount data directories
+      - ./data:/app/Data-Pipeline/data
+    working_dir: /app/Data-Pipeline
+    command: >
+      /opt/testenv/bin/python -m pytest tests/ 
+      -v 
+      --tb=short 
+      --junit-xml=tests/logs/junit-results.xml
+      --cov=scripts 
+      --cov-report=html:tests/logs/coverage_html
+      --cov-report=term-missing
+    networks:
+      - testenv-network
+
+  # Optional: Run specific test categories
+  testenv-unit:
+    extends: testenv
+    container_name: data-pipeline-testenv-unit
+    command: >
+      /opt/testenv/bin/python -m pytest tests/unit/ 
+      -v 
+      --tb=short
+
+  testenv-integration:
+    extends: testenv
+    container_name: data-pipeline-testenv-integration  
+    command: >
+      /opt/testenv/bin/python -m pytest tests/integration/ 
+      -v 
+      --tb=short
+
+  testenv-performance:
+    extends: testenv
+    container_name: data-pipeline-testenv-performance
+    command: >
+      /opt/testenv/bin/python -m pytest tests/performance/ 
+      -v 
+      --tb=short
+
+networks:
+  testenv-network:
+    driver: bridge

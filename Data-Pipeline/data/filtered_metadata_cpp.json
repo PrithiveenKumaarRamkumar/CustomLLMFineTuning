@@ -1,0 +1,9 @@
+[
+  {
+    "repo_name": "example/cpp-repo1",
+    "language": "cpp",
+    "stars": 180,
+    "file_size": 2560,
+    "license": "BSD-3-Clause"
+  }
+]

@@ -1,0 +1,9 @@
+[
+  {
+    "repo_name": "example/java-repo1",
+    "language": "java",
+    "stars": 200,
+    "file_size": 3072,
+    "license": "MIT"
+  }
+]
