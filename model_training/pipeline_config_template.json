@@ -1,0 +1,98 @@
+{
+  "run_data_splitting": true,
+  "run_tokenization": true,
+  "run_training": true,
+  "run_evaluation": true,
+  "run_triton_deployment": false,
+  
+  "data_splitting": {
+    "source_dir": "./data/preprocessed",
+    "output_dir": "./data/splits",
+    "train_ratio": 0.8,
+    "val_ratio": 0.1,
+    "test_ratio": 0.1,
+    "random_seed": 42
+  },
+  
+  "tokenization": {
+    "tokenizer_path": "./models/starcoder2-3b",
+    "train_dir": "./data/splits/train",
+    "val_dir": "./data/splits/val",
+    "test_dir": "./data/splits/test",
+    "output_dir": "./data/tokenized",
+    "max_length": 2048,
+    "instruction_format": "starcoder2"
+  },
+  
+  "model_loading": {
+    "model_path": "./models/starcoder2-3b",
+    "use_4bit": true,
+    "use_8bit": false,
+    "device": "auto",
+    "trust_remote_code": true
+  },
+  
+  "layer_freezing": {
+    "strategy": "first_n",
+    "n_layers": 28,
+    "freeze_embeddings": true,
+    "freeze_layer_norms": true
+  },
+  
+  "training": {
+    "output_dir": "./output/qlora_training",
+    "lora_config": {
+      "r": 16,
+      "alpha": 32,
+      "dropout": 0.1,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "dense"],
+      "bias": "none"
+    },
+    "training_config": {
+      "num_epochs": 3,
+      "batch_size": 2,
+      "gradient_accumulation_steps": 8,
+      "learning_rate": 2e-4,
+      "warmup_steps": 100,
+      "optimizer": "paged_adamw_8bit",
+      "lr_scheduler": "cosine",
+      "weight_decay": 0.01,
+      "max_grad_norm": 1.0,
+      "fp16": false,
+      "bf16": true,
+      "save_steps": 500,
+      "eval_steps": 500,
+      "logging_steps": 10,
+      "save_total_limit": 3,
+      "use_mlflow": true,
+      "mlflow_uri": "./mlruns",
+      "experiment_name": "starcoder2-finetuning"
+    }
+  },
+  
+  "model_saving": {
+    "output_dir": "./output/final_model",
+    "save_full_model": true,
+    "save_adapters_only": true
+  },
+  
+  "evaluation": {
+    "output_dir": "./output/evaluation_results",
+    "max_samples": null,
+    "language": "python"
+  },
+  
+  "triton_deployment": {
+    "triton_model_repository": "./triton_models",
+    "model_name": "starcoder2_finetuned",
+    "model_version": "1",
+    "max_batch_size": 8
+  },
+  
+  "fastapi_server": {
+    "host": "0.0.0.0",
+    "port": 8000
+  },
+  
+  "results_output_dir": "./pipeline_results"
+}
