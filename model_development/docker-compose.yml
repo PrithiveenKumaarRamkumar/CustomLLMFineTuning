@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # Airflow PostgreSQL Database
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  # Airflow Webserver
+  airflow-webserver:
+    image: apache/airflow:2.7.0-python3.10
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__FERNET_KEY: ''
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./models:/opt/airflow/models
+      - ./logs:/opt/airflow/logs
+      - ./mlruns:/opt/airflow/mlruns
+    ports:
+      - "8080:8080"
+    command: webserver
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+
+  # Airflow Scheduler
+  airflow-scheduler:
+    image: apache/airflow:2.7.0-python3.10
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__FERNET_KEY: ''
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./models:/opt/airflow/models
+      - ./logs:/opt/airflow/logs
+      - ./mlruns:/opt/airflow/mlruns
+    command: scheduler
+    restart: always
+
+  # MLflow Tracking Server
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.8.0
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri file:///mlflow/mlruns --default-artifact-root file:///mlflow/mlruns
+    restart: always
+
+  # FastAPI Inference Server
+  inference-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.inference
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./src/inference:/app/src/inference
+    environment:
+      MODEL_PATH: /app/models/checkpoints/starcoder-finetuned
+      BASE_MODEL: bigcode/starcoder2-3b
+    restart: always
+    depends_on:
+      - mlflow
+
+volumes:
+  postgres-db-volume:
