@@ -72,14 +72,14 @@ The LLM Fine-Tuning Platform is a comprehensive solution for democratizing custo
          │               │               │
          └───────────────┼───────────────┘
                          │
-         ┌───────────────┼───────────────┐
-         │               │               │
-         ▼               ▼               ▼
-    ┌──────────┐ ┌───────────────┐
-    │Prometheus│ │  Vertex AI    │
-    │(Metrics) │ │(Tracking &    │
-    └──────────┘ │ Training)     │
-                 └───────────────┘
+         ┌───────────────────────────────┐
+         │                               │
+         ▼                               ▼
+    ┌──────────┐                 ┌───────────────┐
+    │Prometheus│                 │  Vertex AI    │
+    │(Metrics) │                 │(Tracking &    │
+    └──────────┘                 │ Training)     │
+                                 └───────────────┘
 ```
 
 ### Data Flow
