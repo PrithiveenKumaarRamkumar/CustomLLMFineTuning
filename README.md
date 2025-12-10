@@ -1,591 +1,554 @@
-# Custom LLM Fine-Tuning Platform
+# LLM Fine-Tuning Platform
 
-An enterprise-grade, end-to-end platform for fine-tuning and serving large language models (LLMs) on domain-specific datasets. Built with LoRA/QLoRA parameter-efficient fine-tuning, distributed training infrastructure, production-grade deployment patterns, and comprehensive MLOps capabilities.
+A production-ready multi-tenant platform for fine-tuning large language models using QLoRA with integrated data management, experiment tracking, and inference serving.
 
-**Status**: Production-Ready | **Version**: v1.0+ | **License**: MIT
+**Status**: Production-Ready | **Version**: v1.0+ 
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
 - [Key Features](#key-features)
 - [Project Structure](#project-structure)
-- [Recent Work](#recent-work)
-- [How It Works](#how-it-works)
-- [Example Use Cases](#example-use-cases)
 - [Core Components](#core-components)
 - [Getting Started](#getting-started)
+- [API Documentation](#api-documentation)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 
 ---
 
-## 🎯 Overview
+## Overview
 
-The Custom LLM Fine-Tuning Platform is a comprehensive solution designed to democratize LLM customization while maintaining production-grade reliability, scalability, and governance. It addresses the complete lifecycle of custom language model development:
+The LLM Fine-Tuning Platform is a comprehensive solution for democratizing custom LLM development while maintaining enterprise-grade reliability, security, and observability. It handles the complete lifecycle:
 
-- **Data Management**: Acquire, validate, and version large-scale code datasets
-- **Model Training**: Memory-efficient fine-tuning with advanced parameter freezing strategies
-- **Experiment Tracking**: Full MLflow integration for reproducible science
-- **Model Registry**: Centralized model versioning and deployment management
-- **Inference Engine**: High-performance serving with GPU batching and adaptive scheduling
-- **Monitoring & Observability**: Real-time performance tracking, drift detection, and quality gates
-- **Orchestration**: Automated workflows with Apache Airflow for production deployment
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         USER INTERFACE LAYER                             │
-│                    (Web Dashboard + API Gateway)                         │
-└────────────────────────────┬────────────────────────────────────────────┘
-                             │
-        ┌────────────────────┼────────────────────┐
-        │                    │                    │
-        ▼                    ▼                    ▼
-┌─────────────────┐  ┌──────────────────┐  ┌────────────────┐
-│  DATA PIPELINE  │  │  MODEL TRAINING  │  │  SERVING LAYER │
-│                 │  │                  │  │                │
-│ • Acquisition   │  │ • QLoRA Fine     │  │ • FastAPI      │
-│ • Preprocessing │  │   Tuning         │  │ • GPU Batching │
-│ • Validation    │  │ • Distributed    │  │ • LoRA Adapters│
-│ • DVC Versioning│  │   Training       │  │ • Auth & Auth  │
-│ • Monitoring    │  │ • Hyperparameter │  │ • Metrics      │
-│                 │  │   Search         │  │                │
-└────────┬────────┘  └────────┬─────────┘  └────────┬───────┘
-         │                    │                     │
-         └────────────────────┼─────────────────────┘
-                              │
-        ┌─────────────────────┴─────────────────────┐
-        │                                           │
-        ▼                                           ▼
-┌──────────────────────┐                  ┌────────────────────┐
-│  EXPERIMENT TRACKING │                  │  MONITORING STACK  │
-│  & REGISTRY          │                  │                    │
-│                      │                  │ • Prometheus       │
-│ • MLflow Server      │                  │ • Grafana          │
-│ • Model Cards        │                  │ • Alertmanager     │
-│ • Version Control    │                  │ • Custom Dashboards│
-│                      │                  │ • Drift Detection  │
-└──────────────────────┘                  └────────────────────┘
-        ▲                                           ▲
-        │                                           │
-        └───────────────────────┬───────────────────┘
-                                │
-                    ┌───────────┴──────────┐
-                    │                      │
-                    ▼                      ▼
-            ┌──────────────────┐  ┌───────────────┐
-            │  ORCHESTRATION   │  │  STORAGE      │
-            │                  │  │               │
-            │ • Airflow DAGs   │  │ • S3/Local FS │
-            │ • Job Scheduler  │  │ • DVC Cache   │
-            │ • CI/CD Pipeline │  │ • MLflow DB   │
-            └──────────────────┘  └───────────────┘
-```
-
-### Data Flow Architecture
-
-```
-Raw Code Dataset
-       │
-       ▼
-┌─────────────────────────────────────────┐
-│        DATA ACQUISITION LAYER            │
-│  (HuggingFace, Software Heritage, S3)   │
-└────────────────┬────────────────────────┘
-                 │
-                 ▼
-         ┌──────────────────┐
-         │  Multi-language  │
-         │  Organization    │
-         │  & Filtering     │
-         └────────┬─────────┘
-                  │
-                  ▼
-         ┌──────────────────┐
-         │  Preprocessing   │
-         │  • Deduplication │
-         │  • PII Removal   │
-         │  • Normalization │
-         └────────┬─────────┘
-                  │
-                  ▼
-         ┌──────────────────┐
-         │  Quality Checks  │
-         │  & Validation    │
-         │  (Schema, Stats) │
-         └────────┬─────────┘
-                  │
-                  ▼
-        ┌───────────────────────┐
-        │  DVC Versioning       │
-        │  & Training Dataset   │
-        └────────┬──────────────┘
-                 │
-                 ├─────────────────┬──────────────────┐
-                 │                 │                  │
-                 ▼                 ▼                  ▼
-          Model A         Model B          Model C
-       (StarCoder)       (LLaMA)          (Falcon)
-             │              │                 │
-             └──────────────┬─────────────────┘
-                            │
-                    ┌───────▼────────┐
-                    │  QLoRA Fine    │
-                    │  Tuning        │
-                    │  (Distributed) │
-                    └───────┬────────┘
-                            │
-                    ┌───────▼────────┐
-                    │  MLflow        │
-                    │  Tracking &    │
-                    │  Registry      │
-                    └───────┬────────┘
-                            │
-                    ┌───────▼────────┐
-                    │  Model Cards   │
-                    │  & Evaluation  │
-                    └───────┬────────┘
-                            │
-                    ┌───────▼────────┐
-                    │  Containerize  │
-                    │  & Deploy      │
-                    └───────┬────────┘
-                            │
-                    ┌───────▼────────┐
-                    │  FastAPI       │
-                    │  Inference     │
-                    │  Service       │
-                    └───────┬────────┘
-                            │
-                    ┌───────▼────────┐
-                    │  Monitoring &  │
-                    │  Observability │
-                    │  Dashboards    │
-                    └────────────────┘
-```
-
-### Component Interaction
-
-| Component | Purpose | Technology Stack |
-|-----------|---------|------------------|
-| **Data Pipeline** | Acquire, validate, and version datasets | Python, DVC, Airflow, HuggingFace, S3 |
-| **Training Module** | Fine-tune models with QLoRA | PyTorch, PEFT/LoRA, Transformers, HF Accelerate |
-| **Model Registry** | Track experiments and versions | MLflow, Model Cards, DVC |
-| **Serving Engine** | Deploy and inference | FastAPI, CUDA, TorchServe, Docker |
-| **Monitoring Stack** | Observability and alerts | Prometheus, Grafana, AlertManager |
-| **Orchestration** | Workflow automation | Apache Airflow, Kubernetes-ready |
+- **Multi-Tenant Architecture**: Isolated per-user environments with JWT authentication
+- **Data Management**: Upload, validate, preprocess, and version datasets
+- **Parameter-Efficient Training**: QLoRA fine-tuning on StarCoder2-3B
+- **Experiment Tracking**: Vertex AI integration for reproducible science
+- **Model Serving**: High-performance FastAPI inference engine with adapter loading
+- **Monitoring & Observability**: Prometheus, Grafana, and drift detection
+- **Cloud Integration**: Google Cloud Storage and Vertex AI support
 
 ---
 
-## 🚀 Quick Start
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              Frontend (Next.js/TypeScript)                  │
+│                   Web Dashboard                             │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+         ┌───────────────┼───────────────┐
+         │               │               │
+         ▼               ▼               ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│     AUTH     │  │     DATA     │  │   TRAINING   │
+│              │  │              │  │              │
+│ • JWT/RBAC   │  │ • Upload     │  │ • QLoRA      │
+│ • User Mgmt  │  │ • Preprocess │  │ • Distribute │
+│ • Token Mgmt │  │ • Validate   │  │ • Track      │
+│              │  │ • Split      │  │              │
+└──────────────┘  └──────────────┘  └──────────────┘
+         │               │               │
+         └───────────────┼───────────────┘
+                         │
+                    ┌────▼────┐
+                    │ FastAPI │
+                    │ Serving  │
+                    └────┬────┘
+                         │
+         ┌───────────────┼───────────────┐
+         │               │               │
+         ▼               ▼               ▼
+    ┌────────────┐ ┌──────────┐ ┌───────────┐
+    │PostgreSQL  │ │  Redis   │ │    GCS    │
+    │(Metadata)  │ │(Caching) │ │(Storage)  │
+    └────────────┘ └──────────┘ └───────────┘
+         │               │               │
+         └───────────────┼───────────────┘
+                         │
+         ┌───────────────┼───────────────┐
+         │               │               │
+         ▼               ▼               ▼
+    ┌──────────┐ ┌───────────────┐
+    │Prometheus│ │  Vertex AI    │
+    │(Metrics) │ │(Tracking &    │
+    └──────────┘ │ Training)     │
+                 └───────────────┘
+```
+
+### Data Flow
+
+```
+User Upload → Validation → Preprocessing → Deduplication → PII Removal → 
+Bias Detection → Dataset Splitting → GCS Upload → Training Job → 
+Vertex AI Tracking → Model Registry → Inference Service → Monitoring
+```
+
+---
+
+## Quick Start
 
 ### Prerequisites
 
-- Python 3.8+
-- GPU with CUDA 11.8+ (recommended for training)
-- Docker & Docker Compose (for containerized deployment)
-- Git LFS (for model checkpoints)
+- Python 3.10+
+- Docker & Docker Compose (for local dev)
+- GCP account with billing (for cloud features)
+- CUDA 11.8+ (optional, for GPU training)
 
 ### Installation
 
 ```bash
 # Clone repository
-git clone https://github.com/pranudeepmetuku10/CustomLLMFineTuning.git
-cd CustomLLMFineTuning
+git clone <repo-url>
+cd llm-finetuning-platform
 
 # Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python3.10 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Install module-specific requirements
-pip install -r Data-Pipeline/requirements.txt
-pip install -r model_training/requirements.txt
-pip install -r serving/requirements.txt
+# Start infrastructure
+docker-compose up -d
+
+# Run migrations
+alembic upgrade head
+
+# Start API server
+python run.py
 ```
 
-### Basic Usage
-
-```bash
-# 1. Set up Data Pipeline
-cd Data-Pipeline
-# Configure data_config.yaml
-python scripts/data_acquisition.py
-python scripts/preprocessing.py
-
-# 2. Fine-tune a model
-cd ../model_training
-# Configure pipeline_config.json
-python orchestrator.py
-
-# 3. Deploy inference service
-cd ../serving
-python start_api.py
-# Access at http://localhost:8000/docs
-```
+**API Docs**: http://localhost:8000/docs
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-**Fine-Tuning** → Parameter-efficient training (LoRA/QLoRA) on user datasets with custom layer freezing strategies.
-
-**Scalability** → Distributed training across multiple GPUs and nodes with automatic batch optimization.
-
-**Experiment Tracking** → Complete MLflow integration with automatic model cards and metrics dashboards.
-
-**Serving** → Production-ready FastAPI service with GPU batching, async processing, and Kubernetes support.
-
-**Monitoring** → Real-time drift detection, performance dashboards, quality gates, and feedback loops.
-
-**Data Versioning** → DVC integration for reproducible data pipelines and dataset tracking.
-
-**Multi-Model Support** → Pre-configured pipelines for StarCoder2, LLaMA, Falcon, and custom base models.
-
-**Security** → Bearer token authentication, API rate limiting, and input validation.
+| Feature | Description |
+|---------|-------------|
+| **QLoRA Fine-Tuning** | 4-bit quantization + LoRA adapters for memory efficiency |
+| **Multi-Tenant** | Per-user data isolation in PostgreSQL and GCS |
+| **Dataset Pipeline** | Upload, validate, deduplicate, remove PII, split data |
+| **Experiment Tracking** | Vertex AI integration with metrics, artifacts, and model cards |
+| **Async API** | FastAPI with async/await for high concurrency |
+| **GPU Inference** | Dynamic adapter loading with model caching |
+| **Monitoring** | Prometheus metrics, Grafana dashboards, drift detection |
+| **Cloud-Native** | Vertex AI integration, GCS storage, Docker/Kubernetes ready |
+| **Email Alerts** | Training notifications (success/failure) |
+| **Security** | JWT authentication, CORS, rate limiting, input validation |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-CustomLLMFineTuning/
-├── Data-Pipeline/              # Data acquisition, preprocessing, validation
-│   ├── configs/               # YAML configuration files
-│   ├── dags/                  # Apache Airflow orchestration
-│   ├── scripts/               # Core data processing modules
-│   ├── monitoring/            # Prometheus & Grafana setup
-│   ├── tests/                 # Unit, integration, E2E tests
-│   └── README.md              # Detailed data pipeline documentation
+llm-finetuning-platform/
+├── auth/                          # Authentication & Authorization
+│   ├── models.py                 # SQLAlchemy ORM models (User, Dataset, Adapter)
+│   ├── routes.py                 # FastAPI auth endpoints (/signup, /login, /refresh)
+│   ├── schemas.py                # Pydantic request/response schemas
+│   ├── jwt_handler.py            # JWT token creation & verification
+│   ├── dependencies.py           # Dependency injection (get_current_user)
+│   └── database.py               # Database connection & initialization
 │
-├── model_training/            # QLoRA fine-tuning and evaluation
-│   ├── pipeline/              # Training pipeline modules
-│   ├── data/                  # Training datasets
-│   ├── models/                # Model checkpoints
-│   ├── orchestrator.py        # Main training orchestrator
-│   └── Readme.Md              # Training documentation
+├── data/                          # Dataset Management & Preprocessing
+│   ├── pipeline.py               # Main orchestrator combining all steps
+│   ├── file_handler.py           # File upload handling (JSON, CSV, Python)
+│   ├── preprocessing.py          # Cleaning, deduplication, PII removal
+│   ├── splitter.py               # Train/val/test splitting logic
+│   ├── bias_detection.py         # Statistical bias analysis (Evidently)
+│   ├── gcs_pipeline.py           # GCS integration
+│   ├── routes.py                 # FastAPI data endpoints (/upload, /datasets)
+│   ├── processed/                # Local processed cache
+│   ├── raw/                      # Local raw cache
+│   └── versioning/               # Version tracking
 │
-├── serving/                   # FastAPI inference service
-│   ├── api/                   # API endpoints and models
-│   ├── docker/                # Dockerization
-│   ├── assets/                # Architecture diagrams
-│   ├── start_api.py           # API server entry point
-│   └── README.md              # Serving documentation
+├── training/                      # Model Fine-Tuning
+│   ├── train.py                  # Core QLoRA training script
+│   ├── routes.py                 # FastAPI training endpoints (/train, /status)
+│   ├── vertex_manager.py         # Vertex AI integration
+│   ├── email_utils.py            # Training notifications
+│   └── Dockerfile                # Training container
 │
-├── registry/                  # MLflow model registry
-│   ├── mlflow_registry.py     # Registry client
-│   ├── model_card_gen.py      # Auto model card generation
-│   └── registry_client.py     # Registry utilities
+├── serving/                       # Inference Engine
+│   ├── engine.py                 # Model + adapter loading/caching
+│   ├── api/
+│   │   ├── main.py              # FastAPI app setup, middleware, routes
+│   │   ├── inference.py          # Prediction endpoints
+│   │   └── __pycache__/
+│   └── docker/                   # Serving container config
 │
-├── orchestration/             # Workflow orchestration
-│   ├── ci_cd.yaml             # CI/CD pipeline definition
-│   ├── kuberflow_pipeline.py  # Kubernetes workflow
-│   └── job_scheduler.py       # Job scheduling utilities
+├── storage/                       # Cloud & Local Storage
+│   ├── gcs_storage.py            # GCS client (upload/download/list)
+│   └── tenant_storage.py         # Multi-tenant path management
 │
-├── training/                  # Distributed training utilities
-│   ├── distributed_train.sh   # Multi-node training script
-│   ├── hyperparam_search.py   # Hyperparameter optimization
-│   └── trainer_utils.py       # Training utilities
+├── monitoring/                    # Observability
+│   ├── prometheus.yml            # Prometheus config
+│   └── dashboards/               # Grafana JSON dashboards
 │
-├── ui/                        # User interface
-│   ├── backend/               # Backend API
-│   └── frontend/              # Web dashboard
+├── orchestration/                 # Workflow Orchestration
+│   ├── auth/, data/, storage/    # Orchestration tasks
 │
-├── api/                       # REST API utilities
-├── reports/                   # Generated reports
-├── requirements.txt           # Main dependencies
-└── README.md                  # This file
-```
-
----
-
-## Recent Work
-
-**Data Pipeline Implementation** → For detailed information checkout [Data-Pipeline README](Data-Pipeline/README.md) 
-
-The data pipeline includes:
-- Multi-language code dataset acquisition from HuggingFace and Software Heritage
-- Comprehensive preprocessing with deduplication (MinHash-based), PII removal, and quality validation
-- Apache Airflow orchestration for production deployments
-- Real-time monitoring with Prometheus & Grafana
-- End-to-end testing with pytest and coverage reporting
-
----
-
-## 📊 How It Works
-
-```
-Upload Dataset
-      │
-      ▼
-   Preprocessing & Validation
-      │
-      ▼
-   Fine-tune Base Model
-   (StarCoder, LLaMA, Falcon)
-      │
-      ▼
-   Track Experiments & Metrics
-   (MLflow)
-      │
-      ▼
-   Deploy as API Endpoint
-   (FastAPI + Docker)
-      │
-      ▼
-   Monitor Performance
-      │
-      ▼
-   Retrain with New Data
-   (Feedback Loop)
-```
-
-### End-to-End Workflow
-
-1. **Data Ingestion**: Upload or select domain-specific code datasets
-2. **Preprocessing**: Automatic cleaning, deduplication, and schema validation
-3. **Experiment Setup**: Configure model, hyperparameters, and training strategy
-4. **Fine-Tuning**: Train with QLoRA/LoRA with distributed capabilities
-5. **Evaluation**: Automated metrics collection (CodeBLEU, perplexity, syntax validity)
-6. **Versioning**: Automatic model card generation and registry management
-7. **Deployment**: Container-ready deployment with one command
-8. **Monitoring**: Real-time performance tracking and drift detection
-9. **Iteration**: Feedback loop for continuous improvement
-
----
-
-## 💼 Example Use Cases
-
-**FinTech Copilots** → Trained on regulatory compliance codebases and financial algorithms for secure, compliant code generation.
-
-**Healthcare Assistants** → Fine-tuned on medical knowledge bases and healthcare-specific code patterns for clinical decision support.
-
-**Enterprise AI Copilots** → Customized for private code repositories, internal frameworks, and proprietary architectures.
-
-**DevOps Automation** → Models specialized in infrastructure-as-code, deployment scripts, and system administration.
-
-**Domain-Specific Code Generation** → Quantum computing, scientific computing, embedded systems, or specialized domains.
-
----
-
-## 🔧 Core Components
-
-### 1. Data Pipeline (`Data-Pipeline/`)
-
-**Purpose**: Robust, scalable data acquisition and processing
-
-**Key Capabilities**:
-- Fetches code from The Stack v2 dataset (2.8B files)
-- Multi-language support (Python, Java, C++, JavaScript)
-- Automatic deduplication with MinHash (85% threshold)
-- PII detection and removal
-- Schema validation and quality gates
-- DVC integration for version control
-- Airflow orchestration for production
-
-**Configuration**: `Data-Pipeline/configs/`
-
-**Further Reading**: [Data Pipeline README](Data-Pipeline/README.md)
-
----
-
-### 2. Model Training (`model_training/`)
-
-**Purpose**: Memory-efficient fine-tuning of large language models
-
-**Key Capabilities**:
-- QLoRA 4-bit quantization for memory efficiency
-- Custom layer freezing strategies
-- Distributed training (multi-GPU, multi-node)
-- Comprehensive evaluation metrics (CodeBLEU, syntax validity, perplexity)
-- Hyperparameter search and optimization
-- MLflow experiment tracking
-- Production-ready model export
-
-**Configuration**: `model_training/pipeline_config_template.json`
-
-**Further Reading**: [Model Training README](model_training/Readme.Md)
-
----
-
-### 3. Model Registry (`registry/`)
-
-**Purpose**: Centralized model versioning and metadata management
-
-**Key Features**:
-- MLflow model registry integration
-- Automatic model card generation
-- Experiment comparison tools
-- Version promotion workflows
-- Model metadata tracking
-
-**Usage**:
-```python
-from registry.mlflow_registry import ModelRegistry
-registry = ModelRegistry()
-registry.register_model("my-model", "models/checkpoint")
+├── alembic/                       # Database Migrations
+│   ├── env.py                    # Migration environment
+│   └── versions/                 # Migration files
+│
+├── configs/                       # Configuration Files
+│   ├── database_config.yaml
+│   ├── model_config.yaml
+│   ├── data_config.yaml
+│   ├── serving_config.yaml
+│   └── monitoring_config.yaml
+│
+├── tests/                         # Unit & Integration Tests
+│   ├── test_auth_api.py
+│   ├── test_data_api.py
+│   └── test_env.py
+│
+├── scripts/                       # Utility Scripts
+│   ├── register_model.py
+│   ├── test_inference_flow.py
+│   └── test_training_flow.py
+│
+├── utils/                         # Shared Utilities
+│   ├── email.py
+│   └── email_templates.py
+│
+├── frontend/                      # Next.js Web UI
+│   ├── src/app/
+│   ├── public/
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── docker-compose.yml             # Local dev services
+├── requirements.txt               # Python dependencies
+├── alembic.ini                    # Migration config
+├── run.py                         # Quick start script
+├── SETUP_GUIDE.md                 # Detailed setup
+└── docs/GCP_SETUP_GUIDE.md        # Cloud setup guide
 ```
 
 ---
 
-### 4. Serving Engine (`serving/`)
+## Core Components
 
-**Purpose**: Production-grade inference with high performance
+### 1. Authentication Module (`auth/`)
 
-**Key Capabilities**:
-- FastAPI async framework
-- GPU batching with adaptive scheduling
-- LoRA adapter dynamic loading
-- Bearer token authentication
-- Prometheus metrics collection
-- Health checks for Kubernetes
-- Comprehensive error handling
-- OpenAPI documentation
+**Purpose**: Multi-tenant user management with JWT tokens
 
-**API Endpoints**:
-- `POST /predict` - Single inference
-- `POST /predict/batch` - Batch inference
-- `GET /health` - Health check
-- `GET /metrics` - Prometheus metrics
-- `GET /docs` - Swagger UI
+**Endpoints**:
+```
+POST   /api/auth/signup          - User registration
+POST   /api/auth/login           - User login (returns access + refresh tokens)
+POST   /api/auth/refresh         - Refresh access token
+GET    /api/auth/me              - Get current user profile
+POST   /api/auth/change-password - Update password
+```
 
-**Further Reading**: [Serving README](serving/README.md)
+**Features**: Password hashing (bcrypt), JWT signing, token validation, user isolation
 
 ---
 
-### 5. Monitoring Stack (`Data-Pipeline/monitoring/`)
+### 2. Data Management Module (`data/`)
 
-**Purpose**: Observability and operational insights
+**Purpose**: Dataset upload, validation, preprocessing, and quality checks
+
+**Processing Pipeline**:
+```
+Upload → Parse → Clean → Deduplicate → Detect PII → Analyze Bias → Split → GCS Upload
+```
+
+**Endpoints**:
+```
+POST   /api/data/upload          - Upload dataset
+GET    /api/data/datasets        - List user's datasets
+POST   /api/data/process         - Run preprocessing
+GET    /api/data/status/{id}     - Check status
+DELETE /api/data/{id}            - Delete dataset
+```
+
+**Features**: Multi-format support (JSON, CSV, Python), fuzzy deduplication, PII masking, Evidently bias detection
+
+---
+
+### 3. Training Module (`training/`)
+
+**Purpose**: Fine-tune base models with QLoRA
+
+**QLoRA Config**:
+- Base Model: `bigcode/starcoder2-3b`
+- Quantization: 4-bit NF4
+- LoRA Rank: 16
+- Learning Rate: 2e-4
+- Batch Size: 4
+
+**Endpoints**:
+```
+POST   /api/training/train       - Submit training job
+GET    /api/training/jobs        - List jobs
+GET    /api/training/status/{id} - Get job status
+CANCEL /api/training/{id}        - Cancel job
+```
+
+**Features**: Vertex AI training, metric logging, email notifications, checkpoint management
+
+---
+
+### 4. Inference Engine (`serving/`)
+
+**Purpose**: High-performance model inference with adapter loading
+
+**Endpoints**:
+```
+POST   /api/inference/predict    - Single prediction
+POST   /api/inference/batch      - Batch inference
+GET    /api/inference/models     - List adapters
+```
+
+**Features**: Lazy model loading, adapter caching, GPU batching, async processing
+
+---
+
+### 5. Monitoring Stack (`monitoring/`)
+
+**Purpose**: System observability and alerting
 
 **Components**:
-- **Prometheus**: Metrics collection and time-series database
-- **Grafana**: Visualization dashboards
-- **AlertManager**: Alert routing and notifications
-- **Custom Exporter**: Pipeline-specific metrics
+- Prometheus (metrics collection)
+- Grafana (dashboards)
+- Custom metrics (request rates, GPU usage, training loss)
 
-**Dashboards Included**:
-- Data Pipeline Metrics
-- Model Performance
-- Inference Latency
-- Data Drift Detection
-- System Resources
-
-**Further Reading**: [Monitoring Guide](Data-Pipeline/monitoring/DASHBOARD_GUIDE.md)
+**Dashboards**:
+- API Performance
+- GPU Utilization
+- Training Progress
+- Data Quality
 
 ---
 
-### 6. Orchestration (`orchestration/`)
-
-**Purpose**: Automated workflow management
-
-**Components**:
-- Apache Airflow DAGs for data pipeline
-- CI/CD pipeline definition
-- Kubernetes workflow support
-- Job scheduling and retry logic
-
----
-
-## 📚 Getting Started
+## Getting Started
 
 ### For Data Scientists
 
-1. **Prepare your dataset**: Use the Data Pipeline to acquire and preprocess data
-2. **Configure training**: Edit `model_training/pipeline_config_template.json`
-3. **Run fine-tuning**: Execute `python orchestrator.py`
-4. **Monitor experiments**: View MLflow dashboard at `http://localhost:5000`
+```bash
+# 1. Upload dataset
+curl -X POST http://localhost:8000/api/data/upload \
+  -H "Authorization: Bearer {token}" \
+  -F "file=@dataset.json"
+
+# 2. Check preprocessing status
+curl http://localhost:8000/api/data/status/{dataset_id} \
+  -H "Authorization: Bearer {token}"
+
+# 3. Submit training job
+curl -X POST http://localhost:8000/api/training/train \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset_id": "...", "epochs": 3, "learning_rate": 2e-4}'
+
+# 4. Monitor training
+curl http://localhost:8000/api/training/status/{job_id} \
+  -H "Authorization: Bearer {token}"
+```
 
 ### For MLOps Engineers
 
-1. **Set up infrastructure**: Deploy Airflow, Prometheus, Grafana using provided Docker Compose
-2. **Configure monitoring**: Customize dashboards in `Data-Pipeline/monitoring/dashboards/`
-3. **Deploy service**: Use Docker Compose or Kubernetes manifests
-4. **Monitor pipelines**: Access Grafana at configured URL
+```bash
+# Deploy monitoring stack
+docker-compose up -d prometheus grafana
+
+# View dashboards
+# Grafana: http://localhost:3000 (admin/admin)
+# Prometheus: http://localhost:9090
+
+# Check training jobs
+# Vertex AI: https://console.cloud.google.com/vertex-ai/training
+```
 
 ### For Application Developers
 
-1. **Query the API**: Use `curl`, Python `requests`, or auto-generated OpenAPI clients
-2. **Authenticate**: Include Bearer token in Authorization header
-3. **Handle responses**: Parse structured JSON responses with error handling
-4. **Monitor performance**: Track metrics and latency via dashboards
-
----
-
-## 📖 Documentation
-
-- [Data Pipeline Guide](Data-Pipeline/README.md)
-- [Model Training Guide](model_training/Readme.Md)
-- [Serving API Guide](serving/README.md)
-- [Monitoring Dashboard Guide](Data-Pipeline/monitoring/DASHBOARD_GUIDE.md)
-- [MLflow Model Registry Guide](registry/)
-- [Deployment Guide](orchestration/)
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Setup
-
 ```bash
-# Install development dependencies
-pip install -r requirements.txt
-pip install pytest pytest-cov black flake8 isort
+# Authenticate
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "..."}'
 
-# Run tests
-pytest tests/ -v --cov
-
-# Format code
-black .
-isort .
-flake8 .
+# Get predictions
+curl -X POST http://localhost:8000/api/inference/predict \
+  -H "Authorization: Bearer {access_token}" \
+  -H "Content-Type: application/json" \
+  -d '{"adapter_id": "...", "prompt": "def hello"}'
 ```
 
 ---
 
-## 📄 License
+## API Documentation
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Interactive Swagger UI
+
+Visit: **http://localhost:8000/docs**
+
+All endpoints fully documented with request/response schemas.
+
+### Authentication
+
+Include JWT token in all protected requests:
+```
+Authorization: Bearer {access_token}
+```
+
+### Response Format
+
+```json
+{
+  "status": "success",
+  "data": { ... },
+  "error": null,
+  "timestamp": "2024-12-10T10:30:00Z"
+}
+```
 
 ---
 
-## 🙋 Support
+## Documentation
 
-For questions, issues, or suggestions:
-
-- **GitHub Issues**: Report bugs or request features
-- **Documentation**: Check relevant README files in each component directory
-- **Email**: Contact the maintainers
+- [Setup Guide](SETUP_GUIDE.md) - Detailed installation & configuration
+- [GCP Setup](docs/GCP_SETUP_GUIDE.md) - Cloud SQL & GCS configuration
+- [API Reference](serving/api/main.py) - Endpoint documentation
+- [Model Training](training/README.md) - Training guide
+- [Data Pipeline](data/README.md) - Data processing guide
+- [Monitoring](monitoring/README.md) - Observability setup
 
 ---
 
-## 🔮 Roadmap
+## Technology Stack
 
-- [ ] Web UI for experiment management
-- [ ] Advanced hyperparameter optimization (Optuna integration)
+| Layer | Technology |
+|-------|-----------|
+| **API** | FastAPI, Uvicorn, Pydantic |
+| **Auth** | Python-Jose, Passlib/bcrypt |
+| **Database** | PostgreSQL, SQLAlchemy, Alembic |
+| **Cache** | Redis |
+| **ML/DL** | PyTorch, Transformers, PEFT (LoRA) |
+| **Quantization** | BitsAndBytes (4-bit) |
+| **Cloud** | Google Cloud Storage, Vertex AI |
+| **Experiment Tracking** | Vertex AI Experiments |
+| **Monitoring** | Prometheus, Grafana |
+| **Validation** | Evidently AI, Great Expectations |
+| **Frontend** | Next.js, TypeScript, React |
+| **Orchestration** | Apache Airflow, DVC |
+| **Testing** | pytest, pytest-asyncio |
+
+---
+
+## Testing
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=auth,data,training --cov-report=html
+
+# Integration tests
+python scripts/test_training_flow.py
+python scripts/test_inference_flow.py
+```
+
+---
+
+## Deployment
+
+### Docker Compose (Local)
+```bash
+docker-compose up -d
+python run.py
+```
+
+### Docker Container
+```bash
+docker build -t llm-platform .
+docker run -p 8000:8000 --env-file .env llm-platform
+```
+
+### Kubernetes
+```bash
+kubectl apply -f orchestration/k8s/
+```
+
+### Google Cloud Run
+```bash
+gcloud run deploy llm-platform --source . --region us-central1
+```
+
+---
+
+## Security
+
+- **Authentication**: JWT tokens with HS256 signing
+- **Authorization**: Per-user data isolation
+- **Passwords**: Bcrypt hashing with 12 rounds
+- **Secrets**: Environment variables + Google Cloud Secret Manager
+- **API**: CORS whitelisting, rate limiting, input validation
+- **Storage**: GCS paths include user_id for segregation
+- **Network**: HTTPS in production, firewall rules in GCP
+
+---
+
+## Monitoring Dashboard
+
+Access Grafana dashboards at: **http://localhost:3000**
+
+**Pre-configured Dashboards**:
+- API Request Metrics
+- GPU Utilization
+- Training Job Progress
+- Data Quality Metrics
+- System Resources
+
+---
+
+## Contributing
+
+```bash
+# 1. Fork repository
+# 2. Create feature branch
+git checkout -b feature/amazing-feature
+
+# 3. Install dev dependencies
+pip install -r requirements.txt
+pip install pytest black flake8 isort
+
+# 4. Make changes & test
+pytest tests/ -v
+
+# 5. Format code
+black . && isort . && flake8 .
+
+# 6. Push & create PR
+git push origin feature/amazing-feature
+```
+
+---
+
+## Roadmap
+
+- [ ] Advanced hyperparameter optimization (Optuna)
 - [ ] Multi-model ensemble serving
 - [ ] Federated learning support
 - [ ] ONNX export and optimization
-- [ ] Edge deployment (TensorRT, NCNN)
 - [ ] Real-time retraining pipelines
-- [ ] Advanced model interpretability features
+- [ ] Advanced model interpretability
+- [ ] Web UI improvements
+- [ ] Edge deployment support
 
 ---
 
-**Last Updated**: December 2024 | **Maintained By**: CustomLLM Team
+**Last Updated**: December 2025 | **Version**: 1.0.0
