@@ -1,319 +1,138 @@
+"""
+LLM Fine-Tuning Platform - Main FastAPI Application
+
+Multi-tenant platform for fine-tuning LLMs using QLoRA.
+"""
+
 import os
-import sys
-import logging
-import uvicorn
 from contextlib import asynccontextmanager
-from typing import Dict, Any
-import yaml
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from pydantic import ValidationError
-import time
-import traceback
+from prometheus_client import make_asgi_app
+from dotenv import load_dotenv
 
-from .routes import router, initialize_inference_engine, shutdown_inference_engine
-from .schemas import ErrorResponse
+# Load environment variables
+load_dotenv()
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler("api.log")
-    ]
-)
-logger = logging.getLogger(__name__)
-
-# Load configuration
-config_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "Data-Pipeline", "configs", "serving_config.yaml")
-with open(config_path, "r") as f:
-    config = yaml.safe_load(f)
+# Import routers
+from auth.routes import router as auth_router
+from data.routes import router as data_router
+from training.routes import router as training_router
+from serving.api.inference import router as inference_router
+from auth.database import init_db
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Manage application lifecycle events."""
+    """
+    Application lifespan manager.
+    
+    Handles startup and shutdown events.
+    """
     # Startup
-    logger.info("Starting up CustomLLM Inference API...")
+    print("Starting LLM Fine-Tuning Platform...")
     
-    # Validate required environment variables
-    required_env_vars = ["API_KEY"]
-    missing_vars = [var for var in required_env_vars if not os.getenv(var)]
-    
-    if missing_vars:
-        logger.error(f"Missing required environment variables: {missing_vars}")
-        # Don't exit here, let the API start but mark as unhealthy
-    
-    # Initialize inference engine
+    # Initialize database tables
     try:
-        success = await initialize_inference_engine()
-        if success:
-            logger.info("Inference engine initialized successfully")
-        else:
-            logger.warning("Inference engine initialization failed, API will start in degraded mode")
+        await init_db()
+        print("Database initialized")
     except Exception as e:
-        logger.error(f"Failed to initialize inference engine: {str(e)}")
-    
-    logger.info("CustomLLM Inference API startup complete")
+        print(f"Database initialization warning: {e}")
     
     yield
     
     # Shutdown
-    logger.info("Shutting down CustomLLM Inference API...")
-    await shutdown_inference_engine()
-    logger.info("CustomLLM Inference API shutdown complete")
+    print("Shutting down LLM Fine-Tuning Platform...")
 
 
-# Create FastAPI application
+# Create FastAPI app
 app = FastAPI(
-    title=config["api"]["title"],
-    description=config["api"]["description"],
-    version=config["api"]["version"],
+    title="LLM Fine-Tuning Platform",
+    description="""
+    Multi-tenant platform for fine-tuning large language models using QLoRA.
+    
+    ## Features
+    - User authentication with JWT
+    - Per-user dataset management
+    - QLoRA fine-tuning with StarCoder2-3B
+    - Dynamic adapter loading for inference
+    - Usage tracking and monitoring
+    """,
+    version="1.0.0",
     lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json"
 )
 
-# Add CORS middleware
+# CORS configuration
+origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Add trusted host middleware for security
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=["*"]  # Configure appropriately for production
-)
+# Mount Prometheus metrics
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
+
+# Include routers
+app.include_router(auth_router, prefix="/api")
+app.include_router(data_router, prefix="/api")
+app.include_router(training_router, prefix="/api")
+app.include_router(inference_router, prefix="/api")
 
 
-# Request timing middleware
-@app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
-    """Add processing time header to all responses."""
-    start_time = time.time()
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
-    return response
+# =============================================================================
+# Health Check Endpoints
+# =============================================================================
 
-
-# Request logging middleware
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    """Log all incoming requests."""
-    start_time = time.time()
-    
-    # Log request
-    logger.info(f"Incoming request: {request.method} {request.url}")
-    
-    response = await call_next(request)
-    
-    # Log response
-    process_time = time.time() - start_time
-    logger.info(
-        f"Request completed: {request.method} {request.url} - "
-        f"Status: {response.status_code} - Time: {process_time:.4f}s"
-    )
-    
-    return response
-
-
-# Exception handlers
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-    """Handle Pydantic validation errors (400 Bad Request)."""
-    logger.warning(f"Validation error for {request.url}: {exc.errors()}")
-    
-    error_details = []
-    for error in exc.errors():
-        error_details.append({
-            "field": " -> ".join(str(loc) for loc in error["loc"]),
-            "message": error["msg"],
-            "type": error["type"]
-        })
-    
-    error_response = ErrorResponse(
-        error="validation_error",
-        message="Request validation failed",
-        details={
-            "validation_errors": error_details,
-            "invalid_fields": len(error_details)
-        }
-    )
-    
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content=error_response.dict()
-    )
-
-
-@app.exception_handler(ValidationError)
-async def pydantic_validation_exception_handler(request: Request, exc: ValidationError) -> JSONResponse:
-    """Handle Pydantic model validation errors."""
-    logger.warning(f"Pydantic validation error for {request.url}: {exc.errors()}")
-    
-    error_response = ErrorResponse(
-        error="model_validation_error",
-        message="Data model validation failed",
-        details={"validation_errors": exc.errors()}
-    )
-    
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=error_response.dict()
-    )
-
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
-    """Handle HTTP exceptions."""
-    logger.warning(f"HTTP exception for {request.url}: {exc.status_code} - {exc.detail}")
-    
-    # Map specific status codes to error types
-    error_type_mapping = {
-        400: "bad_request",
-        401: "unauthorized",
-        403: "forbidden",
-        404: "not_found",
-        413: "payload_too_large",
-        422: "unprocessable_entity",
-        429: "rate_limit_exceeded",
-        500: "internal_server_error",
-        503: "service_unavailable"
-    }
-    
-    error_response = ErrorResponse(
-        error=error_type_mapping.get(exc.status_code, "http_error"),
-        message=exc.detail,
-        details={"status_code": exc.status_code}
-    )
-    
-    return JSONResponse(
-        status_code=exc.status_code,
-        content=error_response.dict()
-    )
-
-
-@app.exception_handler(Exception)
-async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """Handle unexpected exceptions."""
-    logger.error(
-        f"Unexpected error for {request.url}: {type(exc).__name__}: {str(exc)}\n"
-        f"Traceback: {traceback.format_exc()}"
-    )
-    
-    error_response = ErrorResponse(
-        error="internal_server_error",
-        message="An unexpected error occurred",
-        details={
-            "exception_type": type(exc).__name__,
-            "debug_info": str(exc) if app.debug else "Contact support for assistance"
-        }
-    )
-    
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=error_response.dict()
-    )
-
-
-# Custom exception for payload size errors
-class PayloadTooLargeError(HTTPException):
-    """Exception for when request payload exceeds limits."""
-    
-    def __init__(self, message: str = "Request payload too large"):
-        super().__init__(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=message
-        )
-
-
-@app.exception_handler(PayloadTooLargeError)
-async def payload_too_large_handler(request: Request, exc: PayloadTooLargeError) -> JSONResponse:
-    """Handle payload size limit errors (413)."""
-    logger.warning(f"Payload too large for {request.url}: {exc.detail}")
-    
-    error_response = ErrorResponse(
-        error="payload_too_large",
-        message=exc.detail,
-        details={
-            "max_tokens": config["model"]["max_tokens"],
-            "suggestion": "Reduce prompt length or split into multiple requests"
-        }
-    )
-    
-    return JSONResponse(
-        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-        content=error_response.dict()
-    )
-
-
-# Add request size limit check
-@app.middleware("http")
-async def limit_request_size(request: Request, call_next):
-    """Limit request size to prevent large payloads."""
-    MAX_REQUEST_SIZE = 10 * 1024 * 1024  # 10MB limit
-    
-    content_length = request.headers.get('content-length')
-    if content_length:
-        content_length = int(content_length)
-        if content_length > MAX_REQUEST_SIZE:
-            error_response = ErrorResponse(
-                error="payload_too_large",
-                message=f"Request size ({content_length} bytes) exceeds limit ({MAX_REQUEST_SIZE} bytes)",
-                details={"max_size_bytes": MAX_REQUEST_SIZE}
-            )
-            return JSONResponse(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                content=error_response.dict()
-            )
-    
-    return await call_next(request)
-
-
-# Include router
-app.include_router(router)
-
-
-# Root endpoint
-@app.get("/", summary="Root endpoint", description="Welcome message and basic API information")
-async def root() -> Dict[str, Any]:
-    """Root endpoint with API information."""
+@app.get("/", tags=["Health"])
+async def root():
+    """Root endpoint - API info."""
     return {
-        "message": "Welcome to CustomLLM Inference API",
-        "version": config["api"]["version"],
-        "documentation": "/docs",
-        "health": "/health",
-        "metrics": "/metrics",
-        "model_info": "/info"
+        "name": "LLM Fine-Tuning Platform",
+        "version": "1.0.0",
+        "status": "running",
+        "docs": "/docs"
     }
 
 
-# Development server
+@app.get("/health", tags=["Health"])
+async def health_check():
+    """Health check endpoint for Kubernetes probes."""
+    return {"status": "healthy"}
+
+
+@app.get("/ready", tags=["Health"])
+async def readiness_check():
+    """Readiness check - verifies database connection."""
+    from sqlalchemy import text
+    from auth.database import engine
+    
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    
+    return {
+        "status": "ready" if db_status == "connected" else "not_ready",
+        "database": db_status
+    }
+
+
+# =============================================================================
+# Run with: uvicorn serving.api.main:app --reload
+# =============================================================================
+
 if __name__ == "__main__":
-    # Get configuration from environment or config file
-    host = os.getenv("API_HOST", config["api"]["host"])
-    port = int(os.getenv("API_PORT", config["api"]["port"]))
-    workers = int(os.getenv("API_WORKERS", config["api"]["workers"]))
-    
-    logger.info(f"Starting FastAPI server on {host}:{port}")
-    
+    import uvicorn
     uvicorn.run(
-        "main:app",
-        host=host,
-        port=port,
-        workers=workers,
-        log_level="info",
-        reload=False,  # Set to True for development
-        access_log=True
+        "serving.api.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True
     )
